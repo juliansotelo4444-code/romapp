@@ -1028,7 +1028,7 @@ export default function IntimateSection({ isUnlocked, setIsUnlocked }) {
                       activeUser === 'julian' ? 'bg-purple-700 text-white' : 'text-stone-400 hover:text-white'
                     }`}
                   >
-                    Julián (24)
+                    Julián
                   </button>
                   <button
                     onClick={() => setActiveUser('yanet')}
@@ -1036,7 +1036,7 @@ export default function IntimateSection({ isUnlocked, setIsUnlocked }) {
                       activeUser === 'yanet' ? 'bg-rose-700 text-white' : 'text-stone-400 hover:text-white'
                     }`}
                   >
-                    Yanet (30)
+                    Yanet
                   </button>
                 </div>
               </div>

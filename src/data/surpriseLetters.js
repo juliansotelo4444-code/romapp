@@ -11,7 +11,7 @@ No hay manera de poner en palabras lo que siente mi pecho cuando pienso que hoy 
 
 Como dice la canción que tantas veces cantamos en el auto: *"Si tú me pides que te cante una canción, te canto mil... si me regalas de tus días y tus flores"*. Tú me diste luz en los días grises y me enseñaste a amar con una calma y una pasión que nunca antes conocí.
 
-Tienes 30 años de pura belleza, de mirada profunda y de una ternura que desarma cualquier miedo. Yo, con mis 24, te prometo que nunca te va a faltar una mano que te sostenga, un abrazo que te resguarde del frío de la cordillera y un hombre que te admire en cada paso. Hoy te elijo ante la ley y ante el universo. Y mañana en la fiesta, y pasado en Bariloche, y cada día que nos quede por vivir.
+Tienes una belleza infinita, una mirada profunda y una ternura que desarma cualquier miedo. Te prometo que nunca te va a faltar una mano que te sostenga, un abrazo que te resguarde del frío de la cordillera y un hombre que te admire en cada paso. Hoy te elijo ante la ley y ante el universo. Y mañana en la fiesta, y pasado en Bariloche, y cada día que nos quede por vivir.
 
 Te amo con toda mi alma, mi bebota hermosa.`
   },

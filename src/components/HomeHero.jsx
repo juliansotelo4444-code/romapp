@@ -119,7 +119,7 @@ export default function HomeHero({ onNavigate, isIntimateUnlocked, onOpenSpotify
           {/* Couple badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-medium text-rose-200">
             <Sparkles className="w-4 h-4 text-amber-300 animate-spin" style={{ animationDuration: '6s' }} />
-            <span>Julián (24) & Yanet (30)</span>
+            <span>Julián & Yanet</span>
             <span className="w-1 h-1 rounded-full bg-rose-300" />
             <span className="text-amber-200 font-serif-romantic italic">Nuestra Historia Eterna</span>
           </div>

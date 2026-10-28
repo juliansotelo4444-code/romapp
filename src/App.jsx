@@ -83,9 +83,9 @@ export default function App() {
       <footer className="border-t border-rose-950/50 bg-[#070309]/90 text-stone-400 py-6 text-center text-xs relative z-10">
         <div className="max-w-7xl mx-auto px-4 space-y-2">
           <div className="flex items-center justify-center gap-2 font-medium text-stone-300">
-            <span className="text-stone-200 font-semibold">Julián (24)</span>
+            <span className="text-stone-200 font-semibold">Julián</span>
             <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline-block animate-pulse" />
-            <span className="text-stone-200 font-semibold">Yanet (30)</span>
+            <span className="text-stone-200 font-semibold">Yanet</span>
             <span className="text-stone-600">•</span>
             <span className="text-amber-300 font-serif-romantic font-bold">
               8 & 9 de Octubre

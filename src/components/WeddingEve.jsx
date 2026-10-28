@@ -104,7 +104,7 @@ function LockedWeddingEveView({ countdown }) {
             <span>Víspera: 7 de Octubre • Civil: 8 de Octubre • Fiesta: 9 de Octubre</span>
           </div>
           <span className="text-[11px] text-indigo-300/80">
-            Julián (24) & Yanet (30) • Bariloche
+            Julián & Yanet • Bariloche
           </span>
         </div>
 
