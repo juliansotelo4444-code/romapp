@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-wine-dark: #120710;
+    --color-wine-deep: #1e0b19;
+    --color-wine-surface: #2a0f24;
+    --color-gold-warm: #d97706;
+    --color-gold-champagne: #f59e0b;
+    --color-gold-light: #fde68a;
+  }
+
+  body {
+    @apply antialiased text-stone-100 bg-[#0b0710];
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+  
+  h1, h2, h3, .font-serif-romantic {
+    font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+    letter-spacing: -0.015em;
+  }
+
+  /* Custom browser scrollbars matching the romantic palette */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #140d16;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #4a1936;
+    border-radius: 9999px;
+    border: 2px solid #140d16;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #70244e;
+  }
+
+  /* Accessible focus styling */
+  *:focus-visible {
+    outline: 2px solid rgba(225, 29, 72, 0.65);
+    outline-offset: 2px;
+  }
+}
+
+/* Custom romantic glow & glass styles */
+.glass-panel {
+  background: rgba(20, 11, 23, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(159, 18, 57, 0.35);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+}
+
+.glass-dark {
+  background: rgba(24, 11, 20, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  box-shadow: 0 12px 35px -8px rgba(0, 0, 0, 0.7);
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #d97706 0%, #fbbf24 50%, #b45309 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.rose-gradient-text {
+  background: linear-gradient(135deg, #e11d48 0%, #be185d 50%, #881337 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.parchment-bg {
+  background-color: #fcf9f2;
+  background-image: radial-gradient(#eddcc3 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Exponential ease floating animations (smooth, no tacky bounce) */
+@keyframes floatSmooth {
+  0%, 100% { 
+    transform: translateY(0px); 
+  }
+  50% { 
+    transform: translateY(-5px); 
+  }
+}
+
+.float-smooth {
+  animation: floatSmooth 4.5s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+}
+
+@keyframes pulseWarmGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(244, 63, 94, 0.25), 0 0 40px rgba(217, 119, 6, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(244, 63, 94, 0.4), 0 0 60px rgba(217, 119, 6, 0.3);
+  }
+}
+
+.glow-romantic {
+  animation: pulseWarmGlow 5s infinite ease-in-out;
+}
