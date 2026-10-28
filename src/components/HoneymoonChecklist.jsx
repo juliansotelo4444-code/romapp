@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { INITIAL_HONEYMOON_ITEMS } from '../data/honeymoonData';
 import { triggerLoveConfetti } from '../utils/confetti';
+import { fetchSyncData, apiToggleHoneymoon, apiAddHoneymoon, apiDeleteHoneymoon } from '../api/client';
 
 export default function HoneymoonChecklist() {
   const [items, setItems] = useState([]);
@@ -23,19 +24,49 @@ export default function HoneymoonChecklist() {
   const [newText, setNewText] = useState('');
   const [newDay, setNewDay] = useState('Valija');
 
-  // Load from localStorage
+  // Load from localStorage and sync with Neon PostgreSQL
   useEffect(() => {
+    let localList = INITIAL_HONEYMOON_ITEMS;
     const saved = localStorage.getItem('romapp_honeymoon_items');
     if (saved) {
       try {
-        setItems(JSON.parse(saved));
+        localList = JSON.parse(saved);
       } catch {
-        setItems(INITIAL_HONEYMOON_ITEMS);
+        localList = INITIAL_HONEYMOON_ITEMS;
       }
-    } else {
-      setItems(INITIAL_HONEYMOON_ITEMS);
-      localStorage.setItem('romapp_honeymoon_items', JSON.stringify(INITIAL_HONEYMOON_ITEMS));
     }
+    setItems(localList);
+    localStorage.setItem('romapp_honeymoon_items', JSON.stringify(localList));
+
+    // Cloud sync from Neon
+    fetchSyncData().then((syncData) => {
+      if (syncData && Array.isArray(syncData.honeymoon)) {
+        setItems((prev) => {
+          const remoteMap = new Map();
+          syncData.honeymoon.forEach(row => remoteMap.set(row.id, row.checked));
+
+          // Apply remote checked states to existing items
+          const updated = prev.map(it => {
+            if (remoteMap.has(it.id)) {
+              return { ...it, checked: remoteMap.get(it.id) };
+            }
+            return it;
+          });
+
+          // Add any custom items saved remotely that aren't local yet
+          const localIds = new Set(prev.map(it => it.id));
+          syncData.honeymoon.forEach(rem => {
+            if (!localIds.has(rem.id)) {
+              updated.unshift(rem);
+              localIds.add(rem.id);
+            }
+          });
+
+          localStorage.setItem('romapp_honeymoon_items', JSON.stringify(updated));
+          return updated;
+        });
+      }
+    });
   }, []);
 
   const saveItems = (updated) => {
@@ -44,15 +75,20 @@ export default function HoneymoonChecklist() {
   };
 
   const handleToggle = (id) => {
+    let targetItem = null;
     const updated = items.map((it) => {
       if (it.id === id) {
         const nextState = !it.checked;
         if (nextState) triggerLoveConfetti();
-        return { ...it, checked: nextState };
+        targetItem = { ...it, checked: nextState };
+        return targetItem;
       }
       return it;
     });
     saveItems(updated);
+    if (targetItem) {
+      apiToggleHoneymoon(targetItem);
+    }
   };
 
   const handleAddItem = (e) => {
@@ -68,12 +104,14 @@ export default function HoneymoonChecklist() {
     };
 
     saveItems([newItem, ...items]);
+    apiAddHoneymoon(newItem);
     setNewText('');
   };
 
   const handleDeleteItem = (id) => {
     const updated = items.filter((it) => it.id !== id);
     saveItems(updated);
+    apiDeleteHoneymoon(id);
   };
 
   // Stats calculation

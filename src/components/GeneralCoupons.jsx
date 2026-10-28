@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { GENERAL_COUPONS } from '../data/generalCoupons';
 import { triggerLoveConfetti } from '../utils/confetti';
+import { fetchSyncData, apiRedeemCoupon, apiReactivateCoupon } from '../api/client';
 
 const ICON_MAP = {
   Coffee,
@@ -54,8 +55,9 @@ export default function GeneralCoupons() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 18;
 
-  // Load from localStorage and merge newly added coupons
+  // Load from localStorage and sync with Neon cloud DB
   useEffect(() => {
+    let localList = [];
     const saved = localStorage.getItem('romapp_general_coupons');
     if (saved) {
       try {
@@ -69,18 +71,41 @@ export default function GeneralCoupons() {
             merged.push({ ...c, redeemed: false, redeemedAt: null });
           }
         }
-        setCoupons(merged);
-        localStorage.setItem('romapp_general_coupons', JSON.stringify(merged));
+        localList = merged;
       } catch {
-        const initial = GENERAL_COUPONS.map(c => ({ ...c, redeemed: false, redeemedAt: null }));
-        setCoupons(initial);
-        localStorage.setItem('romapp_general_coupons', JSON.stringify(initial));
+        localList = GENERAL_COUPONS.map(c => ({ ...c, redeemed: false, redeemedAt: null }));
       }
     } else {
-      const initial = GENERAL_COUPONS.map(c => ({ ...c, redeemed: false, redeemedAt: null }));
-      setCoupons(initial);
-      localStorage.setItem('romapp_general_coupons', JSON.stringify(initial));
+      localList = GENERAL_COUPONS.map(c => ({ ...c, redeemed: false, redeemedAt: null }));
     }
+
+    setCoupons(localList);
+    localStorage.setItem('romapp_general_coupons', JSON.stringify(localList));
+
+    // Cloud sync from Neon PostgreSQL
+    fetchSyncData().then((syncData) => {
+      if (syncData && Array.isArray(syncData.coupons)) {
+        const remoteMap = new Map();
+        syncData.coupons.forEach((row) => {
+          remoteMap.set(row.coupon_id, {
+            redeemed: row.redeemed,
+            redeemedAt: row.redeemed_at
+          });
+        });
+
+        setCoupons((prev) => {
+          const synced = prev.map((c) => {
+            const remote = remoteMap.get(c.id);
+            if (remote) {
+              return { ...c, redeemed: remote.redeemed, redeemedAt: remote.redeemedAt };
+            }
+            return c;
+          });
+          localStorage.setItem('romapp_general_coupons', JSON.stringify(synced));
+          return synced;
+        });
+      }
+    });
   }, []);
 
   const saveCoupons = (updated) => {
@@ -104,6 +129,7 @@ export default function GeneralCoupons() {
 
     saveCoupons(updated);
     triggerLoveConfetti();
+    apiRedeemCoupon(id, today);
   };
 
   const handleReactivate = (id) => {
@@ -114,6 +140,7 @@ export default function GeneralCoupons() {
       return c;
     });
     saveCoupons(updated);
+    apiReactivateCoupon(id);
   };
 
   const categories = [

@@ -25,6 +25,7 @@ import {
   INSOMNIA_ROULETTE_PROMPTS 
 } from '../data/weddingEveData';
 import { triggerLoveConfetti, triggerGoldConfetti } from '../utils/confetti';
+import { fetchSyncData, apiSaveWeddingEveNote } from '../api/client';
 
 function LockedWeddingEveView({ countdown }) {
   return (
@@ -182,6 +183,17 @@ export default function WeddingEve({ onOpenSpotify }) {
     if (goldenSaved === 'true') {
       setIsGoldenUnlocked(true);
     }
+
+    // Sync remote notes from Neon
+    fetchSyncData().then((syncData) => {
+      if (syncData && syncData.weddingEveNotes) {
+        setScheduleNotes((prev) => {
+          const merged = { ...prev, ...syncData.weddingEveNotes };
+          localStorage.setItem('romapp_night_schedule', JSON.stringify(merged));
+          return merged;
+        });
+      }
+    });
   }, []);
 
   const saveMissions = (updated) => {
@@ -221,6 +233,7 @@ export default function WeddingEve({ onOpenSpotify }) {
   const handleScheduleTextChange = (timeSlot, text) => {
     const updated = { ...scheduleNotes, [timeSlot]: text };
     saveSchedule(updated);
+    apiSaveWeddingEveNote(timeSlot, text);
   };
 
   // Spin Roulette

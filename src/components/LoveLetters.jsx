@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { SURPRISE_LETTERS } from '../data/surpriseLetters';
 import { triggerLoveConfetti } from '../utils/confetti';
+import { fetchSyncData, apiSaveLetter, apiDeleteLetter } from '../api/client';
 
 export default function LoveLetters() {
   const [letters, setLetters] = useState([]);
@@ -31,19 +32,37 @@ export default function LoveLetters() {
     content: ''
   });
 
-  // Load letters from localStorage or initialize with surprise letters
+  // Load letters from localStorage and sync with Neon PostgreSQL
   useEffect(() => {
+    let localList = SURPRISE_LETTERS;
     const saved = localStorage.getItem('romapp_letters');
     if (saved) {
       try {
-        setLetters(JSON.parse(saved));
+        localList = JSON.parse(saved);
       } catch {
-        setLetters(SURPRISE_LETTERS);
+        localList = SURPRISE_LETTERS;
       }
-    } else {
-      setLetters(SURPRISE_LETTERS);
-      localStorage.setItem('romapp_letters', JSON.stringify(SURPRISE_LETTERS));
     }
+    setLetters(localList);
+    localStorage.setItem('romapp_letters', JSON.stringify(localList));
+
+    // Cloud sync from Neon
+    fetchSyncData().then((syncData) => {
+      if (syncData && Array.isArray(syncData.letters)) {
+        setLetters((prev) => {
+          const ids = new Set(prev.map(l => l.id));
+          const merged = [...prev];
+          syncData.letters.forEach((rem) => {
+            if (!ids.has(rem.id)) {
+              merged.push(rem);
+              ids.add(rem.id);
+            }
+          });
+          localStorage.setItem('romapp_letters', JSON.stringify(merged));
+          return merged;
+        });
+      }
+    });
   }, []);
 
   const saveLettersToLocal = (newLetters) => {
@@ -83,6 +102,9 @@ export default function LoveLetters() {
     setViewMode('read');
     setIsEnvelopeOpen(true);
 
+    // Save to Neon cloud DB
+    apiSaveLetter(created);
+
     // Reset form
     setNewLetter({
       title: '',
@@ -98,6 +120,7 @@ export default function LoveLetters() {
     if (confirm('¿Seguro que deseas eliminar esta carta de amor?')) {
       const filtered = letters.filter((l) => l.id !== id);
       saveLettersToLocal(filtered);
+      apiDeleteLetter(id);
       if (activeLetter?.id === id) {
         setViewMode('list');
         setActiveLetter(null);
