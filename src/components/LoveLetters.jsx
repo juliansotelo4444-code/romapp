@@ -38,7 +38,14 @@ export default function LoveLetters() {
     const saved = localStorage.getItem('romapp_letters');
     if (saved) {
       try {
-        localList = JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Keep custom letters, ensure all letters are authored by Julián
+        const customOnly = parsed.filter(l => l.id.toString().startsWith('custom-')).map(l => ({
+          ...l,
+          author: 'Julián',
+          recipient: l.recipient || 'Yanet'
+        }));
+        localList = [...SURPRISE_LETTERS, ...customOnly];
       } catch {
         localList = SURPRISE_LETTERS;
       }
@@ -54,7 +61,7 @@ export default function LoveLetters() {
           const merged = [...prev];
           syncData.letters.forEach((rem) => {
             if (!ids.has(rem.id)) {
-              merged.push(rem);
+              merged.push({ ...rem, author: 'Julián' });
               ids.add(rem.id);
             }
           });
@@ -92,7 +99,9 @@ export default function LoveLetters() {
 
     const created = {
       id: 'custom-' + Date.now(),
-      ...newLetter
+      ...newLetter,
+      author: 'Julián',
+      recipient: newLetter.recipient.trim() || 'Yanet'
     };
 
     const updated = [created, ...letters];
@@ -143,7 +152,7 @@ export default function LoveLetters() {
             </h2>
           </div>
           <p className="text-xs text-stone-400 mt-1">
-            Palabras que sellan nuestra promesa, con citas de Morat, Tan Biónica y la complicidad de cada día.
+            Palabras y promesas escritas por Julián para Yanet, con citas de Morat, Tan Biónica y la complicidad de cada día.
           </p>
         </div>
 
@@ -171,7 +180,7 @@ export default function LoveLetters() {
           <div className="flex items-center justify-between border-b border-rose-950/60 pb-4">
             <h3 className="font-serif-romantic text-xl font-bold text-stone-100 flex items-center gap-2">
               <Feather className="w-5 h-5 text-rose-400" />
-              Redactar una Nueva Carta de Amor
+              Redactar una Nueva Carta de Amor para Yanet
             </h3>
             <button
               onClick={() => setViewMode('list')}
@@ -186,28 +195,23 @@ export default function LoveLetters() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-stone-300 mb-1">
-                  ¿Quién escribe?
+                  Autor
                 </label>
-                <select
-                  value={newLetter.author}
-                  onChange={(e) => setNewLetter({ ...newLetter, author: e.target.value })}
-                  className="w-full bg-[#1c0b1f] border border-rose-950/80 text-stone-100 text-xs rounded-xl p-2.5 focus:outline-none focus:border-rose-500"
-                >
-                  <option value="Julián">Julián (para Yanet)</option>
-                  <option value="Yanet">Yanet (para Julián)</option>
-                  <option value="Julián & Yanet">Julián & Yanet (Juntos)</option>
-                </select>
+                <div className="w-full bg-[#1c0b1f] border border-rose-950/80 text-rose-300 text-xs rounded-xl p-2.5 flex items-center gap-2 font-semibold">
+                  <Feather className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Julián (escrito por mí)</span>
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-stone-300 mb-1">
-                  ¿Para quién?
+                  Para (Destinataria)
                 </label>
                 <input
                   type="text"
                   value={newLetter.recipient}
                   onChange={(e) => setNewLetter({ ...newLetter, recipient: e.target.value })}
-                  placeholder="Ej: Mi muñeca, Mi memé..."
+                  placeholder="Yanet (Mi muñeca, Mi memé...)"
                   className="w-full bg-[#1c0b1f] border border-rose-950/80 text-stone-100 text-xs rounded-xl p-2.5 focus:outline-none focus:border-rose-500 placeholder-stone-500"
                 />
               </div>
@@ -364,9 +368,9 @@ export default function LoveLetters() {
 
                 <div>
                   <div className="flex items-center justify-between text-xs text-stone-400 mb-2">
-                    <span className="flex items-center gap-1 font-medium text-rose-300 bg-rose-950/60 px-2.5 py-0.5 rounded-full border border-rose-800/40">
-                      <Feather className="w-3 h-3" />
-                      {letter.author}
+                    <span className="flex items-center gap-1 font-medium text-rose-300 bg-rose-950/60 px-2.5 py-0.5 rounded-full border border-rose-800/40 text-[11px]">
+                      <Feather className="w-3 h-3 text-rose-400" />
+                      De {letter.author} para {letter.recipient}
                     </span>
                     <span>{letter.date}</span>
                   </div>

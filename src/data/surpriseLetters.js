@@ -18,32 +18,32 @@ Te amo con toda mi alma, mi bebota hermosa.`
   {
     id: 'let-2',
     title: 'La Melodía de Dios en Buenos Aires',
-    author: 'Yanet',
-    recipient: 'Julián',
+    author: 'Julián',
+    recipient: 'Yanet',
     date: '9 de Octubre',
     theme: 'Tan Biónica & Fiesta de Bodas',
-    content: `Mi vida, mi bebé, mi memé...
+    content: `Mi vida, mi muñeca, mi memé...
 Míranos hoy. En medio de las luces, de la música, de los abrazos de toda la gente que nos quiere, pero con mis ojos fijos únicamente en los tuyos. 
 
-Sonaba Tan Biónica y yo solo pensaba en cuántas noches mágicas imaginé este instante. Llegaste a mi vida a ponerle música a todo lo que estaba en silencio. Tu juventud no es solo un número; es tu fuego, tu lealtad, tus ganas de comerte el mundo conmigo y la forma en que me miras, como si fuera la única mujer sobre la faz de la tierra.
+Sonaba Tan Biónica y yo solo pensaba en cuántas noches mágicas imaginé este instante. Llegaste a mi vida a ponerle música a todo lo que estaba en silencio. Eres la mujer de mis sueños, la que me llena de fuego, la que me inspira a comerme el mundo y la dueña absoluta de mi corazón.
 
-Hoy celebramos esta fiesta que soñamos tanto, pero lo que más deseo no es el vals ni el brindis: es subirnos al avión rumbo a Bariloche, refugiarnos en esa cabaña frente a las montañas, encender el fuego y saber que ya somos esposos. 
+Hoy celebramos esta fiesta que soñamos tanto, pero lo que más deseo no es solo el vals ni el brindis: es subirnos al avión rumbo a Bariloche, refugiarnos en esa cabaña frente a las montañas, encender el fuego y saber que ya somos esposos para siempre. 
 
-Gracias por elegirme, mi amor. Te entrego mi corazón sin condiciones.`
+Gracias por elegirme, mi amor. Te entrego mi vida entera sin condiciones.`
   },
   {
     id: 'let-3',
     title: 'Sin Miedo al Destino',
-    author: 'Julián & Yanet',
-    recipient: 'Para Nosotros',
+    author: 'Julián',
+    recipient: 'Yanet',
     date: 'Bariloche, Noche de Chimenea',
     theme: 'Airbag & Luna de Miel',
-    content: `Memé de mi vida...
+    content: `Memé de mi vida, mi muñeca...
 Afuera la Patagonia congela el lago Nahuel Huapi, el viento silba entre los pinos y la nieve corona los cerros. Pero acá adentro, sobre la alfombra frente al fuego, con los leños crepitando y una copa de vino entre las manos, no existe el frío.
 
 Hay canciones de Airbag que hablan de tempestades y de corazones que no se rinden. Nosotros cruzamos todas las dudas, rompimos cualquier prejuicio y construimos este refugio indestructible que hoy llamamos nuestro matrimonio. 
 
-Verte dormir a mi lado con el reflejo de las brasas en tu piel es el mayor regalo que la vida me pudo dar. Bariloche es testigo de que este amor no es una casualidad: es nuestro mayor acierto.`
+Verte dormir a mi lado con el reflejo de las brasas en tu piel es el mayor regalo que la vida me pudo dar. Bariloche es testigo de que este amor no es una casualidad: eres mi mayor acierto y mi felicidad eterna.`
   },
   {
     id: 'let-4',
