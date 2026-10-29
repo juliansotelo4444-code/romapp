@@ -21,11 +21,29 @@ import {
   HeartHandshake, 
   MapPin, 
   GlassWater,
-  Search
+  Search,
+  Lock,
+  Unlock,
+  Clock,
+  Home
 } from 'lucide-react';
 import { GENERAL_COUPONS } from '../data/generalCoupons';
 import { triggerLoveConfetti } from '../utils/confetti';
 import { fetchSyncData, apiRedeemCoupon, apiReactivateCoupon } from '../api/client';
+
+export function isConvivenciaCoupon(coupon) {
+  if (coupon.category === 'Tregua Doméstica & Convivencia') return true;
+  const text = (coupon.title + ' ' + coupon.description).toLowerCase();
+  return (
+    text.includes('tareas domésticas') ||
+    text.includes('lavar los platos') ||
+    text.includes('limpiar los pisos') ||
+    text.includes('sacar la basura') ||
+    text.includes('desinfectar picaportes') ||
+    text.includes('planchar ropa') ||
+    text.includes('tender la cama')
+  );
+}
 
 const ICON_MAP = {
   Coffee,
@@ -50,10 +68,43 @@ const ICON_MAP = {
 
 export default function GeneralCoupons() {
   const [coupons, setCoupons] = useState([]);
-  const [activeCategory, setActiveCategory] = useState('Todos');
+  const [activeCategory, setActiveCategory] = useState('Todos (Noviazgo)');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 18;
+  const itemsPerPage = 12;
+
+  // Progressive daily unlock state (starts with 8 noviazgo coupons unlocked)
+  const [unlockedNoviazgoCount, setUnlockedNoviazgoCount] = useState(() => {
+    const saved = localStorage.getItem('romapp_unlocked_noviazgo_count');
+    return saved ? Math.max(parseInt(saved, 10), 8) : 8;
+  });
+
+  const [lastUnlockDate, setLastUnlockDate] = useState(() => {
+    return localStorage.getItem('romapp_last_coupon_unlock_date') || '';
+  });
+
+  const [timeUntilMidnight, setTimeUntilMidnight] = useState('');
+
+  // Countdown timer to midnight for next daily coupon
+  useEffect(() => {
+    const updateCountdown = () => {
+      const now = new Date();
+      const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+      const diff = midnight - now;
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+      setTimeUntilMidnight(
+        `${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`
+      );
+    };
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const canUnlockToday = lastUnlockDate !== todayStr;
 
   // Load from localStorage and sync with Neon cloud DB
   useEffect(() => {
@@ -143,26 +194,72 @@ export default function GeneralCoupons() {
     apiReactivateCoupon(id);
   };
 
+  // Compute noviazgo coupons and index mapping
+  const noviazgoCouponsList = useMemo(() => {
+    return coupons.filter(c => !isConvivenciaCoupon(c));
+  }, [coupons]);
+
+  const totalNoviazgo = noviazgoCouponsList.length;
+
+  // Handle daily unlock of a new coupon
+  const handleRevealDailyCoupon = () => {
+    const nextCount = Math.min(unlockedNoviazgoCount + 1, totalNoviazgo);
+    setUnlockedNoviazgoCount(nextCount);
+    setLastUnlockDate(todayStr);
+    localStorage.setItem('romapp_unlocked_noviazgo_count', String(nextCount));
+    localStorage.setItem('romapp_last_coupon_unlock_date', todayStr);
+    triggerLoveConfetti();
+  };
+
   const categories = [
-    'Todos',
-    'Tregua Doméstica & Convivencia',
+    'Todos (Noviazgo)',
     'Citas, Gastronomía & Salidas',
     'Mimos y Cuidado Diario',
     'Música, Salidas y Citas',
     'Sensuales & Pícaros (After Dark)',
     'Especiales Boda y Bariloche',
-    'Canjeados'
+    'Canjeados',
+    '🔒 Convivencia (Bloqueados)'
   ];
+
+  // Map each coupon with its locked/unlocked state
+  const enrichedCoupons = useMemo(() => {
+    let noviazgoCounter = 0;
+
+    return coupons.map((c) => {
+      const isConvivencia = isConvivenciaCoupon(c);
+      let isUnlocked = false;
+
+      if (isConvivencia) {
+        isUnlocked = false; // Strictly locked for post-wedding living together
+      } else {
+        isUnlocked = noviazgoCounter < unlockedNoviazgoCount;
+        noviazgoCounter++;
+      }
+
+      return {
+        ...c,
+        isConvivencia,
+        isUnlocked
+      };
+    });
+  }, [coupons, unlockedNoviazgoCount]);
 
   // Filter coupons with search and category
   const filteredCoupons = useMemo(() => {
-    return coupons.filter((c) => {
+    return enrichedCoupons.filter((c) => {
       // Category filter
       if (activeCategory === 'Canjeados') {
         if (!c.redeemed) return false;
+      } else if (activeCategory === '🔒 Convivencia (Bloqueados)') {
+        if (!c.isConvivencia) return false;
+      } else if (activeCategory === 'Todos (Noviazgo)') {
+        if (c.isConvivencia) return false;
+        if (c.redeemed) return false;
       } else {
-        if (c.redeemed) return false; // In other tabs show available only
-        if (activeCategory !== 'Todos' && c.category !== activeCategory) return false;
+        if (c.isConvivencia) return false;
+        if (c.redeemed) return false;
+        if (c.category !== activeCategory) return false;
       }
 
       // Search query filter
@@ -176,7 +273,7 @@ export default function GeneralCoupons() {
 
       return true;
     });
-  }, [coupons, activeCategory, searchQuery]);
+  }, [enrichedCoupons, activeCategory, searchQuery]);
 
   // Pagination
   const totalPages = Math.ceil(filteredCoupons.length / itemsPerPage);
@@ -185,8 +282,9 @@ export default function GeneralCoupons() {
     return filteredCoupons.slice(start, start + itemsPerPage);
   }, [filteredCoupons, currentPage]);
 
-  const availableCount = coupons.filter((c) => !c.redeemed).length;
+  const availableNoviazgoCount = enrichedCoupons.filter((c) => !c.isConvivencia && c.isUnlocked && !c.redeemed).length;
   const redeemedCount = coupons.filter((c) => c.redeemed).length;
+  const totalConvivenciaCount = enrichedCoupons.filter((c) => c.isConvivencia).length;
 
   return (
     <div className="space-y-8 py-6 max-w-6xl mx-auto">
@@ -203,18 +301,78 @@ export default function GeneralCoupons() {
             </h2>
           </div>
           <p className="text-xs text-stone-400 mt-1">
-            Vales canjeables con sello nupcial: treguas de convivencia, citas gourmet, mimos y momentos especiales.
+            Etapa de Noviazgo activa con desbloqueo progresivo diario. Los vales de convivencia permanecen sellados hasta el matrimonio.
           </p>
         </div>
 
         {/* Counter Pills */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-rose-950/60 text-rose-300 border border-rose-800/50">
-            {availableCount} Disponibles
+            {availableNoviazgoCount} Desbloqueados para Canjear
           </span>
           <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#1a0a1e] text-stone-400 border border-rose-950/50">
             {redeemedCount} Canjeados
           </span>
+          <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-amber-950/40 text-amber-300/80 border border-amber-800/40 flex items-center gap-1">
+            <Lock className="w-3 h-3 text-amber-400" />
+            {totalConvivenciaCount} Convivencia (Bloqueados)
+          </span>
+        </div>
+      </div>
+
+      {/* Daily Reveal Banner (Cofre Diario de Noviazgo) */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#200a1d] via-[#2a0e26] to-[#150718] p-6 border border-amber-500/30 shadow-2xl">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-5 relative z-10">
+          
+          <div className="flex items-center gap-4 text-left">
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 shrink-0 shadow-lg">
+              <Gift className="w-7 h-7 text-amber-400 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-amber-700/60">
+                  Cofre Diario de Noviazgo
+                </span>
+                <span className="text-xs text-stone-400 font-mono">
+                  {unlockedNoviazgoCount} de {totalNoviazgo} revelados
+                </span>
+              </div>
+              <h3 className="font-serif-romantic text-lg sm:text-xl font-bold text-white mt-1">
+                {canUnlockToday
+                  ? '¡Tienes 1 nuevo cupón de noviazgo listo para revelar hoy!'
+                  : '¡Ya revelaste tu cupón de hoy! El próximo se prepara a medianoche.'}
+              </h3>
+              <p className="text-xs text-stone-300 font-light mt-0.5">
+                Desbloqueo gradual de a poco para disfrutar cada sorpresa a su debido tiempo.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full sm:w-auto">
+            {canUnlockToday ? (
+              <button
+                onClick={handleRevealDailyCoupon}
+                className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 text-stone-950 font-bold text-xs uppercase tracking-wider shadow-xl shadow-amber-400/20 hover:scale-105 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4 text-stone-950" />
+                <span>Revelar Cupón de Hoy</span>
+              </button>
+            ) : (
+              <div className="px-5 py-2.5 rounded-2xl bg-[#140816] border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-2 shadow-inner">
+                <Clock className="w-4 h-4 text-amber-400 animate-pulse" />
+                <span>Próximo cofre en: {timeUntilMidnight}</span>
+              </div>
+            )}
+          </div>
+
+        </div>
+
+        {/* Progress Bar */}
+        <div className="w-full bg-[#120514] rounded-full h-2 mt-5 overflow-hidden border border-rose-950/50">
+          <div 
+            className="bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500 h-2 rounded-full transition-all duration-700"
+            style={{ width: `${Math.min(Math.round((unlockedNoviazgoCount / totalNoviazgo) * 100), 100)}%` }}
+          />
         </div>
       </div>
 
@@ -249,7 +407,9 @@ export default function GeneralCoupons() {
                 }}
                 className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-rose-700 text-rose-100 shadow-md border border-rose-600/50'
+                    ? cat.includes('Convivencia')
+                      ? 'bg-amber-950/80 text-amber-200 shadow-md border border-amber-600/60'
+                      : 'bg-rose-700 text-rose-100 shadow-md border border-rose-600/50'
                     : 'bg-[#1a0a1e] text-stone-300 hover:bg-rose-950/40 border border-rose-950/60'
                 }`}
               >
@@ -286,6 +446,91 @@ export default function GeneralCoupons() {
           paginatedCoupons.map((coupon) => {
             const IconComponent = ICON_MAP[coupon.icon] || Heart;
 
+            // CASE 1: CONVIVENCIA COUPONS (Strictly locked for post-wedding living together)
+            if (coupon.isConvivencia) {
+              return (
+                <div
+                  key={coupon.id}
+                  className="relative rounded-3xl overflow-hidden bg-[#100814]/80 backdrop-blur-md border border-amber-900/40 p-6 flex flex-col justify-between shadow-xl opacity-80"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-amber-950/60 text-amber-400 border border-amber-800/40 flex items-center gap-1">
+                        <Lock className="w-3 h-3 text-amber-400" />
+                        <span>Convivencia • Post-Boda</span>
+                      </span>
+                      <div className="w-8 h-8 rounded-xl bg-amber-950/40 text-amber-400 border border-amber-800/30 flex items-center justify-center">
+                        <Home className="w-4 h-4" />
+                      </div>
+                    </div>
+
+                    <h3 className="font-serif-romantic text-base font-bold text-stone-300 leading-snug">
+                      {coupon.title}
+                    </h3>
+
+                    <p className="text-xs text-stone-400 mt-2 leading-relaxed">
+                      {coupon.description}
+                    </p>
+
+                    <div className="mt-3 p-2.5 rounded-xl bg-amber-950/30 border border-amber-700/30 text-[11px] text-amber-300/80 italic">
+                      Reservado para la vida conyugal bajo el mismo techo después de la boda.
+                    </div>
+                  </div>
+
+                  <div className="pt-4 mt-4 border-t border-rose-950/50">
+                    <button
+                      disabled
+                      className="w-full py-2 rounded-xl bg-stone-900/60 border border-stone-800 text-stone-500 font-semibold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed"
+                    >
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>Bloqueado hasta la Convivencia</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+
+            // CASE 2: NOVIAZGO COUPON NOT YET UNLOCKED (Sealed mystery card for upcoming days)
+            if (!coupon.isUnlocked && !coupon.redeemed) {
+              return (
+                <div
+                  key={coupon.id}
+                  className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#120715] to-[#0c040d] border border-rose-950/60 p-6 flex flex-col justify-between shadow-xl"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-rose-950/40 text-rose-300/70 border border-rose-900/30 flex items-center gap-1">
+                        <Lock className="w-3 h-3 text-rose-400" />
+                        <span>Noviazgo • En Camino</span>
+                      </span>
+                      <div className="w-8 h-8 rounded-xl bg-rose-950/30 text-stone-500 border border-rose-900/30 flex items-center justify-center">
+                        <Gift className="w-4 h-4" />
+                      </div>
+                    </div>
+
+                    <h3 className="font-serif-romantic text-base font-bold text-stone-400 leading-snug">
+                      Cupón Sorpresa de Noviazgo
+                    </h3>
+
+                    <p className="text-xs text-stone-500 mt-2 leading-relaxed italic">
+                      Este vale se revelará en los próximos días de nuestro camino al altar. Abre el cofre diario mañana para descubrirlo.
+                    </p>
+                  </div>
+
+                  <div className="pt-4 mt-4 border-t border-rose-950/40">
+                    <button
+                      disabled
+                      className="w-full py-2 rounded-xl bg-[#160a18]/60 border border-rose-950/50 text-stone-500 font-semibold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed"
+                    >
+                      <Clock className="w-3.5 h-3.5 text-stone-500" />
+                      <span>Se desbloqueará pronto</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+
+            // CASE 3: UNLOCKED NOVIAZGO COUPON (Ready to be redeemed)
             return (
               <div
                 key={coupon.id}
@@ -332,7 +577,7 @@ export default function GeneralCoupons() {
                 {/* Footer Action */}
                 <div className="p-4 bg-[#100612]/90 border-t border-rose-950/60 flex items-center justify-between">
                   <span className="text-[10px] text-stone-400 font-medium">
-                    {coupon.redeemed ? `Canjeado: ${coupon.redeemedAt}` : 'Válido sin vencimiento'}
+                    {coupon.redeemed ? `Canjeado: ${coupon.redeemedAt}` : 'Válido durante el noviazgo'}
                   </span>
 
                   {coupon.redeemed ? (
