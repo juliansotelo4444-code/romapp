@@ -129,7 +129,7 @@ export default function HomeHero({ onNavigate, isIntimateUnlocked, onOpenSpotify
             <span className="block text-rose-300 text-xl sm:text-2xl md:text-3xl font-sans font-light tracking-wide mb-2 transition-all duration-700">
               {NICKNAMES_GREETINGS[greetingIndex]} ❤️
             </span>
-            Bienvenidos a Nuestra App de Bodas
+            Bienvenida a nuestra app de amor
           </h1>
 
           <p className="text-base sm:text-lg text-rose-100/90 font-light max-w-2xl mx-auto leading-relaxed">
