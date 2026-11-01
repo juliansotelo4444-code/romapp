@@ -1,27 +1,19 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Lock, 
   Unlock, 
   Flame, 
   Sparkles, 
   Search, 
-  Check, 
   RotateCcw, 
   Eye, 
   EyeOff, 
   Plus, 
   Trash2, 
-  Key, 
   ShieldCheck, 
-  BookOpen, 
   Heart, 
-  ChevronDown, 
-  ChevronUp, 
-  Camera, 
-  Star,
-  Users,
-  AlertTriangle,
-  Gift
+  Gift,
+  Star
 } from 'lucide-react';
 import { INTIMATE_COUPONS } from '../data/intimateCoupons';
 import { POSITIONS_DATA } from '../data/positionsData';
@@ -29,6 +21,7 @@ import { STIMULATION_GUIDE } from '../data/stimulationGuide';
 import { FANTASIES_DATA } from '../data/fantasiesData';
 import PositionSvg from './PositionSvg';
 import { triggerLoveConfetti } from '../utils/confetti';
+import { useProfile } from '../context/ProfileContext';
 
 function SealedGiftBoxView({ onUnlock }) {
   // Target upcoming October 8 so countdown is always live and positive
@@ -58,18 +51,7 @@ function SealedGiftBoxView({ onUnlock }) {
   const [isOpening, setIsOpening] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const remaining = calculateTimeLeft();
-      setTimeLeft(remaining);
-      if (remaining.passed && !isOpening && !isOpen) {
-        handleTriggerOpen();
-      }
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [isOpening, isOpen]);
-
-  const handleTriggerOpen = () => {
+  const handleTriggerOpen = useCallback(() => {
     if (isOpening || isOpen) return;
     setIsOpening(true);
     triggerLoveConfetti();
@@ -80,7 +62,18 @@ function SealedGiftBoxView({ onUnlock }) {
       setIsOpen(true);
       triggerLoveConfetti();
     }, 900);
-  };
+  }, [isOpening, isOpen]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const remaining = calculateTimeLeft();
+      setTimeLeft(remaining);
+      if (remaining.passed && !isOpening && !isOpen) {
+        handleTriggerOpen();
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isOpening, isOpen, handleTriggerOpen]);
 
   const handleEnterUnlocked = () => {
     triggerLoveConfetti();
@@ -260,6 +253,8 @@ function SealedGiftBoxView({ onUnlock }) {
 }
 
 export default function IntimateSection({ isUnlocked, setIsUnlocked }) {
+  const { profile } = useProfile();
+
   // Navigation tabs inside intimate area
   const [activeTab, setActiveTab] = useState('coupons'); // 'coupons', 'positions', 'guide', 'match', 'vault'
 
@@ -278,9 +273,15 @@ export default function IntimateSection({ isUnlocked, setIsUnlocked }) {
   const [expandedSections, setExpandedSections] = useState({ 'femenino': true, 'masculino': true, 'fundamentos': true });
 
   // 4. Fantasy Match Quiz State
-  const [activeUser, setActiveUser] = useState('julian'); // 'julian' or 'yanet'
+  const [activeUser, setActiveUser] = useState(() => (profile?.id ? profile.id : 'julian')); // 'julian' or 'yanet'
   const [quizAnswers, setQuizAnswers] = useState({ julian: {}, yanet: {} });
   const [showMatchesOnly, setShowMatchesOnly] = useState(false);
+
+  useEffect(() => {
+    if (profile?.id) {
+      setActiveUser(profile.id);
+    }
+  }, [profile?.id]);
 
   // 5. Vault Photos State
   const [vaultPin, setVaultPin] = useState('1234');
@@ -344,10 +345,11 @@ export default function IntimateSection({ isUnlocked, setIsUnlocked }) {
       month: 'long',
       year: 'numeric'
     });
+    const who = profile?.name || 'Nosotros';
 
     const updated = coupons.map((c) => {
       if (c.id === id) {
-        return { ...c, redeemed: true, redeemedAt: today };
+        return { ...c, redeemed: true, redeemedAt: today, redeemedBy: who };
       }
       return c;
     });

@@ -20,7 +20,7 @@ app.get('/api/health', (req, res) => {
 app.get('/api/sync', async (req, res) => {
   try {
     const [couponsRes, lettersRes, honeymoonRes, eveNotesRes, quizRes] = await Promise.all([
-      pool.query('SELECT coupon_id, redeemed, redeemed_at FROM coupons_state'),
+      pool.query('SELECT coupon_id, redeemed, redeemed_at, redeemed_by FROM coupons_state'),
       pool.query('SELECT id, title, author, recipient, date, content, created_at FROM love_letters ORDER BY created_at DESC'),
       pool.query('SELECT id, text, day, category, checked FROM honeymoon_items ORDER BY created_at ASC'),
       pool.query('SELECT slot_time, content FROM wedding_eve_notes'),
@@ -47,17 +47,17 @@ app.get('/api/sync', async (req, res) => {
 
 // --- CUPONES ---
 app.post('/api/coupons/redeem', async (req, res) => {
-  const { couponId, redeemedAt } = req.body;
+  const { couponId, redeemedAt, redeemedBy } = req.body;
   if (!couponId) return res.status(400).json({ error: 'couponId requerido' });
 
   try {
     await pool.query(
-      `INSERT INTO coupons_state (coupon_id, redeemed, redeemed_at)
-       VALUES ($1, true, $2)
-       ON CONFLICT (coupon_id) DO UPDATE SET redeemed = true, redeemed_at = $2`,
-      [couponId, redeemedAt || new Date().toLocaleDateString('es-AR')]
+      `INSERT INTO coupons_state (coupon_id, redeemed, redeemed_at, redeemed_by)
+       VALUES ($1, true, $2, $3)
+       ON CONFLICT (coupon_id) DO UPDATE SET redeemed = true, redeemed_at = $2, redeemed_by = $3`,
+      [couponId, redeemedAt || new Date().toLocaleDateString('es-AR'), redeemedBy || 'Nosotros']
     );
-    res.json({ success: true, couponId, redeemed: true, redeemedAt });
+    res.json({ success: true, couponId, redeemed: true, redeemedAt, redeemedBy });
   } catch (err) {
     console.error('Error canjeando cupón:', err);
     res.status(500).json({ error: 'Error al canjear cupón en la base de datos' });
@@ -70,9 +70,9 @@ app.post('/api/coupons/reactivate', async (req, res) => {
 
   try {
     await pool.query(
-      `INSERT INTO coupons_state (coupon_id, redeemed, redeemed_at)
-       VALUES ($1, false, NULL)
-       ON CONFLICT (coupon_id) DO UPDATE SET redeemed = false, redeemed_at = NULL`,
+      `INSERT INTO coupons_state (coupon_id, redeemed, redeemed_at, redeemed_by)
+       VALUES ($1, false, NULL, NULL)
+       ON CONFLICT (coupon_id) DO UPDATE SET redeemed = false, redeemed_at = NULL, redeemed_by = NULL`,
       [couponId]
     );
     res.json({ success: true, couponId, redeemed: false });

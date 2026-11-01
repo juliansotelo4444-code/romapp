@@ -9,13 +9,16 @@ import {
   Music, 
   Menu, 
   X,
-  Lock,
-  Unlock,
   Volume2,
-  Gift
+  Gift,
+  RefreshCw,
+  UserCheck
 } from 'lucide-react';
+import { useProfile } from '../context/ProfileContext';
+import ProfileModal from './ProfileModal';
 
-const NICKNAMES = ['mi amor', 'mi muñeca', 'mi vida', 'mi bebota', 'bebé', 'memé'];
+const JULIAN_NICKNAMES_FOR_YANET = ['mi muñeca', 'mi amor', 'mi vida', 'mi bebota', 'bebé', 'memé'];
+const YANET_NICKNAMES_FOR_JULIAN = ['mi rey', 'mi amor', 'mi bombón', 'mi cielo', 'mi vida', 'mi osito'];
 
 export default function Navbar({ 
   currentTab, 
@@ -24,16 +27,19 @@ export default function Navbar({
   setIsSpotifyOpen,
   isIntimateUnlocked 
 }) {
+  const { profile, isJulian, isYanet, toggleProfile, showProfileModal, setShowProfileModal } = useProfile();
   const [nickIndex, setNickIndex] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const nicknames = isJulian ? JULIAN_NICKNAMES_FOR_YANET : YANET_NICKNAMES_FOR_JULIAN;
 
   // Rotate nickname periodically
   useEffect(() => {
     const interval = setInterval(() => {
-      setNickIndex((prev) => (prev + 1) % NICKNAMES.length);
+      setNickIndex((prev) => (prev + 1) % nicknames.length);
     }, 4500);
     return () => clearInterval(interval);
-  }, []);
+  }, [nicknames.length]);
 
   const navItems = [
     { id: 'home', label: 'Inicio', icon: Heart },
@@ -84,16 +90,16 @@ export default function Navbar({
                 
                 {/* Rotating Nickname Pill */}
                 <div className="flex items-center gap-1.5 text-xs text-stone-400">
-                  <span>Para ti,</span>
+                  <span>{isJulian ? 'Para mi muñeca,' : 'Para mi rey,'}</span>
                   <span className="inline-block font-semibold text-rose-400 transition-all duration-500 transform">
-                    "{NICKNAMES[nickIndex]}"
+                    "{nicknames[nickIndex]}"
                   </span>
                 </div>
               </div>
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+            <nav className="hidden md:flex items-center gap-1 lg:gap-1.5">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = currentTab === item.id;
@@ -103,13 +109,13 @@ export default function Navbar({
                     <button
                       key={item.id}
                       onClick={() => handleSelectTab(item.id)}
-                      className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                      className={`relative flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 ${
                         isActive
                           ? 'bg-[#240d1c] text-amber-300 shadow-md ring-1 ring-amber-400/50'
                           : 'bg-[#1a0a14] border border-amber-900/40 text-amber-100/90 hover:text-amber-300 hover:border-amber-500/50 hover:shadow-md'
                       }`}
                     >
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-amber-400 animate-pulse' : 'text-amber-300/80'}`} />
+                      <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-amber-400 animate-pulse' : 'text-amber-300/80'}`} />
                       <span>{item.label}</span>
                       {!isIntimateUnlocked && (
                         <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
@@ -122,31 +128,49 @@ export default function Navbar({
                   <button
                     key={item.id}
                     onClick={() => handleSelectTab(item.id)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
                       isActive
-                        ? 'bg-rose-50 text-rose-700 font-semibold shadow-xs'
-                        : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50'
+                        ? 'bg-rose-950/70 text-rose-200 font-semibold border border-rose-800/50 shadow-xs'
+                        : 'text-stone-300 hover:text-white hover:bg-rose-950/30'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-rose-600' : 'text-stone-400'}`} />
+                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-rose-400' : 'text-stone-400'}`} />
                     <span>{item.label}</span>
                   </button>
                 );
               })}
             </nav>
 
-            {/* Right Action: Spotify Floating Toggle & Mobile Menu */}
+            {/* Right Actions: Profile Switcher & Spotify Floating Toggle & Mobile Menu */}
             <div className="flex items-center gap-2">
+              {/* Profile Pill Button */}
+              <button
+                onClick={() => setShowProfileModal(true)}
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all shadow-sm cursor-pointer border ${
+                  isJulian
+                    ? 'bg-gradient-to-r from-amber-950/70 to-purple-950/70 text-amber-200 border-amber-500/50 hover:border-amber-400 hover:shadow-amber-950/50'
+                    : 'bg-gradient-to-r from-rose-950/70 to-pink-950/70 text-rose-200 border-rose-500/50 hover:border-rose-400 hover:shadow-rose-950/50'
+                }`}
+                title="Cambiar entre Julián y Yanet"
+              >
+                <span className="text-sm">{profile.emoji}</span>
+                <span className="font-bold">{profile.name}</span>
+                <span className="hidden lg:inline text-[10px] text-stone-400 font-normal">
+                  ({profile.partnerName ? `con ${profile.partnerName}` : ''})
+                </span>
+                <RefreshCw className="w-3 h-3 text-stone-400 hover:rotate-180 transition-transform" />
+              </button>
+
               <button
                 onClick={() => setIsSpotifyOpen(!isSpotifyOpen)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all shadow-sm ${
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all shadow-sm cursor-pointer ${
                   isSpotifyOpen 
                     ? 'bg-emerald-600 text-white shadow-emerald-500/20' 
-                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
+                    : 'bg-emerald-950/50 text-emerald-300 hover:bg-emerald-900/60 border border-emerald-800/60'
                 }`}
                 title="Música de Nuestra Historia"
               >
-                <Music className="w-4 h-4 text-emerald-600 group-hover:rotate-12 transition-transform" />
+                <Music className="w-3.5 h-3.5 text-emerald-400 group-hover:rotate-12 transition-transform" />
                 <span className="hidden sm:inline">Spotify</span>
                 {isSpotifyOpen && <Volume2 className="w-3.5 h-3.5 animate-pulse" />}
               </button>
@@ -166,7 +190,34 @@ export default function Navbar({
 
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-rose-950/70 bg-[#0e0712]/98 backdrop-blur-xl px-4 pt-3 pb-6 space-y-1.5 shadow-2xl">
+          <div className="md:hidden border-t border-rose-950/70 bg-[#0e0712]/98 backdrop-blur-xl px-4 pt-3 pb-6 space-y-2 shadow-2xl">
+            {/* Mobile Profile Switch Card */}
+            <div 
+              onClick={() => {
+                setShowProfileModal(true);
+                setMobileMenuOpen(false);
+              }}
+              className={`p-3 rounded-2xl border flex items-center justify-between cursor-pointer mb-2 transition-all ${
+                isJulian 
+                  ? 'bg-gradient-to-r from-amber-950/60 to-purple-950/60 border-amber-500/40 text-amber-200' 
+                  : 'bg-gradient-to-r from-rose-950/60 to-pink-950/60 border-rose-500/40 text-rose-200'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="text-xl">{profile.emoji}</span>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-sm text-white">Sesión: {profile.name}</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-black/40 text-stone-300 border border-white/10">
+                      {profile.role.split('/')[0].trim()}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-stone-400">Toca para cambiar a {profile.partnerName}</p>
+                </div>
+              </div>
+              <RefreshCw className="w-4 h-4 text-stone-400" />
+            </div>
+
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentTab === item.id;
@@ -226,6 +277,12 @@ export default function Navbar({
           <span className="text-[10px] mt-0.5">Regalo</span>
         </button>
       </div>
+
+      {/* Profile Selector Modal */}
+      <ProfileModal 
+        isOpen={showProfileModal} 
+        onClose={() => setShowProfileModal(false)} 
+      />
     </>
   );
 }

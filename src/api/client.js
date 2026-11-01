@@ -31,12 +31,12 @@ export async function fetchSyncData() {
 }
 
 // 2. Cupones
-export async function apiRedeemCoupon(couponId, redeemedAt) {
+export async function apiRedeemCoupon(couponId, redeemedAt, redeemedBy) {
   try {
     const res = await fetchWithTimeout(`${API_BASE}/coupons/redeem`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ couponId, redeemedAt })
+      body: JSON.stringify({ couponId, redeemedAt, redeemedBy })
     });
     return res.ok;
   } catch (e) {

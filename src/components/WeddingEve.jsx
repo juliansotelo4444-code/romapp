@@ -26,8 +26,9 @@ import {
 } from '../data/weddingEveData';
 import { triggerLoveConfetti, triggerGoldConfetti } from '../utils/confetti';
 import { fetchSyncData, apiSaveWeddingEveNote } from '../api/client';
+import { useProfile } from '../context/ProfileContext';
 
-function LockedWeddingEveView({ countdown }) {
+function LockedWeddingEveView({ countdown, onUnlockTest }) {
   return (
     <div className="py-12 px-4 max-w-xl mx-auto text-center space-y-8">
       <div className="p-8 sm:p-12 rounded-3xl bg-[#0d0918] text-white border border-indigo-500/30 shadow-2xl relative overflow-hidden space-y-6">
@@ -91,11 +92,21 @@ function LockedWeddingEveView({ countdown }) {
         </div>
 
         {/* Locked status banner */}
-        <div className="relative z-10 pt-2 text-center">
+        <div className="relative z-10 pt-2 text-center space-y-2">
           <span className="inline-flex items-center gap-1.5 text-xs text-indigo-300/90 font-medium bg-indigo-950/60 px-3.5 py-1.5 rounded-full border border-indigo-800/40">
             <Lock className="w-3.5 h-3.5 text-amber-400" />
             <span>Bloqueado hasta el 7 de Octubre a las 20:00 hs. Apertura automática.</span>
           </span>
+          {onUnlockTest && (
+            <div>
+              <button
+                onClick={onUnlockTest}
+                className="text-[11px] text-amber-300 hover:text-amber-200 underline font-medium cursor-pointer"
+              >
+                (Vista previa para novios: abrir espacio ahora)
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Footer date info */}
@@ -145,19 +156,25 @@ export default function WeddingEve({ onOpenSpotify }) {
     return () => clearInterval(timer);
   }, []);
 
+  const { profile } = useProfile();
   const [activeTab, setActiveTab] = useState('missions'); // 'missions', 'schedule', 'roulette', 'midnight'
-  const [targetAudience, setTargetAudience] = useState('yanet'); // 'yanet' or 'julian'
+  const [targetAudience, setTargetAudience] = useState(() => (profile?.name ? profile.name.toLowerCase() : 'yanet'));
   const [missionsState, setMissionsState] = useState(WEDDING_EVE_MISSIONS);
   const [scheduleNotes, setScheduleNotes] = useState({});
   const [revealedPhotos, setRevealedPhotos] = useState({});
   const [rouletteResult, setRouletteResult] = useState(null);
   const [isSpinning, setIsSpinning] = useState(false);
   const [isGoldenUnlocked, setIsGoldenUnlocked] = useState(false);
+  const [manualUnlocked, setManualUnlocked] = useState(() => {
+    return localStorage.getItem('romapp_wedding_eve_unlocked') === 'true';
+  });
 
-  // If locked, render the atmospheric locked screen with countdown
-  if (!eveCountdown.isUnlocked) {
-    return <LockedWeddingEveView countdown={eveCountdown} />;
-  }
+  // Keep targetAudience aligned with active profile
+  useEffect(() => {
+    if (profile?.name) {
+      setTargetAudience(profile.name.toLowerCase());
+    }
+  }, [profile?.name]);
 
   // Load state from localStorage
   useEffect(() => {
@@ -195,6 +212,20 @@ export default function WeddingEve({ onOpenSpotify }) {
       }
     });
   }, []);
+
+  // If locked and not manually unlocked, render the atmospheric locked screen with countdown
+  if (!eveCountdown.isUnlocked && !manualUnlocked) {
+    return (
+      <LockedWeddingEveView 
+        countdown={eveCountdown} 
+        onUnlockTest={() => {
+          setManualUnlocked(true);
+          localStorage.setItem('romapp_wedding_eve_unlocked', 'true');
+          triggerGoldConfetti();
+        }} 
+      />
+    );
+  }
 
   const saveMissions = (updated) => {
     setMissionsState(updated);

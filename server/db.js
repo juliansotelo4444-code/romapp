@@ -22,8 +22,10 @@ export async function initDb() {
       CREATE TABLE IF NOT EXISTS coupons_state (
         coupon_id TEXT PRIMARY KEY,
         redeemed BOOLEAN NOT NULL DEFAULT FALSE,
-        redeemed_at TEXT
+        redeemed_at TEXT,
+        redeemed_by TEXT
       );
+      ALTER TABLE coupons_state ADD COLUMN IF NOT EXISTS redeemed_by TEXT;
     `);
 
     // 2. Cartas de Amor compartidas

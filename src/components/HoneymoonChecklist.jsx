@@ -12,17 +12,22 @@ import {
   Camera, 
   Mountain, 
   Ship,
-  Heart
+  Heart,
+  Edit3,
+  X
 } from 'lucide-react';
 import { INITIAL_HONEYMOON_ITEMS } from '../data/honeymoonData';
 import { triggerLoveConfetti } from '../utils/confetti';
 import { fetchSyncData, apiToggleHoneymoon, apiAddHoneymoon, apiDeleteHoneymoon } from '../api/client';
+import { useProfile } from '../context/ProfileContext';
 
 export default function HoneymoonChecklist() {
+  const { profile } = useProfile();
   const [items, setItems] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState('Todos');
   const [newText, setNewText] = useState('');
   const [newDay, setNewDay] = useState('Valija');
+  const [editingItem, setEditingItem] = useState(null);
 
   // Load from localStorage and sync with Neon PostgreSQL
   useEffect(() => {
@@ -80,7 +85,11 @@ export default function HoneymoonChecklist() {
       if (it.id === id) {
         const nextState = !it.checked;
         if (nextState) triggerLoveConfetti();
-        targetItem = { ...it, checked: nextState };
+        targetItem = { 
+          ...it, 
+          checked: nextState,
+          checkedBy: nextState ? profile.name : null
+        };
         return targetItem;
       }
       return it;
@@ -100,7 +109,8 @@ export default function HoneymoonChecklist() {
       day: newDay,
       category: newDay === 'Valija' ? 'Equipaje' : 'Itinerario',
       text: newText.trim(),
-      checked: false
+      checked: false,
+      createdBy: profile.name
     };
 
     saveItems([newItem, ...items]);
@@ -108,7 +118,25 @@ export default function HoneymoonChecklist() {
     setNewText('');
   };
 
-  const handleDeleteItem = (id) => {
+  const handleStartEdit = (item, e) => {
+    if (e) e.stopPropagation();
+    setEditingItem({ ...item });
+  };
+
+  const handleSaveEdit = (e) => {
+    e.preventDefault();
+    if (!editingItem || !editingItem.text.trim()) return;
+
+    const updated = items.map((it) =>
+      it.id === editingItem.id ? { ...it, text: editingItem.text, day: editingItem.day } : it
+    );
+    saveItems(updated);
+    apiToggleHoneymoon(editingItem);
+    setEditingItem(null);
+  };
+
+  const handleDeleteItem = (id, e) => {
+    if (e) e.stopPropagation();
     const updated = items.filter((it) => it.id !== id);
     saveItems(updated);
     apiDeleteHoneymoon(id);
@@ -316,26 +344,107 @@ export default function HoneymoonChecklist() {
                     <span className="text-[10px] text-stone-400">
                       {item.category}
                     </span>
+                    {item.checked && item.checkedBy && (
+                      <span className="text-[10px] text-amber-300 font-semibold bg-amber-950/40 px-2 py-0.5 rounded-md border border-amber-800/30">
+                        Listo por {item.checkedBy}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {item.id.toString().startsWith('custom-hm-') && (
+              <div className="flex items-center gap-1">
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteItem(item.id);
-                  }}
-                  className="p-1.5 text-stone-400 hover:text-rose-400 rounded-lg hover:bg-rose-950/40 transition-colors"
-                  title="Eliminar ítem"
+                  onClick={(e) => handleStartEdit(item, e)}
+                  className="p-1.5 text-stone-400 hover:text-amber-300 rounded-lg hover:bg-rose-950/40 transition-colors"
+                  title="Editar plan"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Edit3 className="w-4 h-4" />
                 </button>
-              )}
+
+                {item.id.toString().startsWith('custom-hm-') && (
+                  <button
+                    onClick={(e) => handleDeleteItem(item.id, e)}
+                    className="p-1.5 text-stone-400 hover:text-rose-400 rounded-lg hover:bg-rose-950/40 transition-colors"
+                    title="Eliminar ítem"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
             </div>
           ))
         )}
       </div>
+
+      {/* EDIT ITEM MODAL */}
+      {editingItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div 
+            className="relative w-full max-w-md bg-[#140816] border border-emerald-900/60 rounded-3xl p-6 shadow-2xl text-stone-100 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-rose-950/60 pb-3">
+              <h3 className="font-serif-romantic text-lg font-bold text-white flex items-center gap-2">
+                <Edit3 className="w-4 h-4 text-emerald-400" />
+                <span>Editar Plan para Bariloche</span>
+              </h3>
+              <button
+                onClick={() => setEditingItem(null)}
+                className="p-1.5 rounded-xl text-stone-400 hover:text-white hover:bg-white/10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1">
+                  Descripción de la actividad o prenda
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  value={editingItem.text}
+                  onChange={(e) => setEditingItem({ ...editingItem, text: e.target.value })}
+                  className="w-full bg-[#1c0b1f] border border-rose-950/80 text-stone-100 text-xs rounded-xl p-2.5 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1">
+                  Día asignado
+                </label>
+                <select
+                  value={editingItem.day}
+                  onChange={(e) => setEditingItem({ ...editingItem, day: e.target.value })}
+                  className="w-full bg-[#1c0b1f] border border-rose-950/80 text-stone-100 text-xs rounded-xl p-2.5 focus:outline-none focus:border-emerald-500 font-medium"
+                >
+                  {dayOptions.filter(d => d !== 'Todos').map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingItem(null)}
+                  className="px-4 py-2 rounded-xl text-stone-400 hover:text-stone-200 text-xs font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-semibold text-xs shadow-md"
+                >
+                  Guardar Cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

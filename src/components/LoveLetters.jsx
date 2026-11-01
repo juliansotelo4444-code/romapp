@@ -11,26 +11,43 @@ import {
   User, 
   Check, 
   ArrowLeft,
-  Feather
+  Feather,
+  Edit3,
+  Filter
 } from 'lucide-react';
 import { SURPRISE_LETTERS } from '../data/surpriseLetters';
 import { triggerLoveConfetti } from '../utils/confetti';
 import { fetchSyncData, apiSaveLetter, apiDeleteLetter } from '../api/client';
+import { useProfile } from '../context/ProfileContext';
 
 export default function LoveLetters() {
+  const { profile, isJulian, isYanet, partnerName } = useProfile();
   const [letters, setLetters] = useState([]);
   const [activeLetter, setActiveLetter] = useState(null);
   const [isEnvelopeOpen, setIsEnvelopeOpen] = useState(false);
   const [viewMode, setViewMode] = useState('list'); // 'list', 'read', 'write'
+  const [editingLetterId, setEditingLetterId] = useState(null);
+  const [authorFilter, setAuthorFilter] = useState('all'); // 'all', 'mine', 'partner', 'julian', 'yanet'
 
   // New letter form state
   const [newLetter, setNewLetter] = useState({
     title: '',
-    author: 'Julián',
-    recipient: 'Yanet',
+    author: profile.name,
+    recipient: partnerName,
     date: new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' }),
     content: ''
   });
+
+  // Keep author/recipient in sync when profile changes if not editing
+  useEffect(() => {
+    if (!editingLetterId) {
+      setNewLetter((prev) => ({
+        ...prev,
+        author: profile.name,
+        recipient: partnerName
+      }));
+    }
+  }, [profile.name, partnerName, editingLetterId]);
 
   // Load letters from localStorage and sync with Neon PostgreSQL
   useEffect(() => {
@@ -39,11 +56,11 @@ export default function LoveLetters() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Keep custom letters, ensure all letters are authored by Julián
+        // Keep custom letters, preserve original author or fallback to Julian
         const customOnly = parsed.filter(l => l.id.toString().startsWith('custom-')).map(l => ({
           ...l,
-          author: 'Julián',
-          recipient: l.recipient || 'Yanet'
+          author: l.author || 'Julián',
+          recipient: l.recipient || (l.author === 'Yanet' ? 'Julián' : 'Yanet')
         }));
         localList = [...SURPRISE_LETTERS, ...customOnly];
       } catch {
@@ -61,7 +78,11 @@ export default function LoveLetters() {
           const merged = [...prev];
           syncData.letters.forEach((rem) => {
             if (!ids.has(rem.id)) {
-              merged.push({ ...rem, author: 'Julián' });
+              merged.push({ 
+                ...rem, 
+                author: rem.author || 'Julián', 
+                recipient: rem.recipient || (rem.author === 'Yanet' ? 'Julián' : 'Yanet') 
+              });
               ids.add(rem.id);
             }
           });
@@ -88,40 +109,73 @@ export default function LoveLetters() {
   };
 
   const handleSurpriseLetter = () => {
-    const randomIndex = Math.floor(Math.random() * SURPRISE_LETTERS.length);
-    const chosen = SURPRISE_LETTERS[randomIndex];
+    const randomIndex = Math.floor(Math.random() * letters.length);
+    const chosen = letters[randomIndex] || SURPRISE_LETTERS[0];
     handleOpenLetter(chosen);
   };
 
-  const handleSaveNewLetter = (e) => {
-    e.preventDefault();
-    if (!newLetter.title.trim() || !newLetter.content.trim()) return;
-
-    const created = {
-      id: 'custom-' + Date.now(),
-      ...newLetter,
-      author: 'Julián',
-      recipient: newLetter.recipient.trim() || 'Yanet'
-    };
-
-    const updated = [created, ...letters];
-    saveLettersToLocal(updated);
-    triggerLoveConfetti();
-    setActiveLetter(created);
-    setViewMode('read');
-    setIsEnvelopeOpen(true);
-
-    // Save to Neon cloud DB
-    apiSaveLetter(created);
-
-    // Reset form
+  const handleStartNewLetter = () => {
+    setEditingLetterId(null);
     setNewLetter({
       title: '',
-      author: 'Julián',
-      recipient: 'Yanet',
+      author: profile.name,
+      recipient: partnerName,
       date: new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' }),
       content: ''
     });
+    setViewMode('write');
+  };
+
+  const handleStartEditLetter = (letter, e) => {
+    if (e) e.stopPropagation();
+    setEditingLetterId(letter.id);
+    setNewLetter({
+      title: letter.title,
+      author: letter.author || profile.name,
+      recipient: letter.recipient || partnerName,
+      date: letter.date || new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' }),
+      content: letter.content
+    });
+    setViewMode('write');
+  };
+
+  const handleSaveLetterForm = (e) => {
+    e.preventDefault();
+    if (!newLetter.title.trim() || !newLetter.content.trim()) return;
+
+    if (editingLetterId) {
+      // Editing existing letter
+      const updatedItem = {
+        ...newLetter,
+        id: editingLetterId
+      };
+      const updatedList = letters.map((l) => (l.id === editingLetterId ? updatedItem : l));
+      saveLettersToLocal(updatedList);
+      triggerLoveConfetti();
+      setActiveLetter(updatedItem);
+      setViewMode('read');
+      setIsEnvelopeOpen(true);
+      apiSaveLetter(updatedItem);
+    } else {
+      // Creating new letter
+      const created = {
+        id: 'custom-' + Date.now(),
+        ...newLetter,
+        author: newLetter.author.trim() || profile.name,
+        recipient: newLetter.recipient.trim() || partnerName
+      };
+
+      const updated = [created, ...letters];
+      saveLettersToLocal(updated);
+      triggerLoveConfetti();
+      setActiveLetter(created);
+      setViewMode('read');
+      setIsEnvelopeOpen(true);
+      apiSaveLetter(created);
+    }
+
+    // Reset editing state
+    setEditingLetterId(null);
   };
 
   const handleDeleteLetter = (id, e) => {
@@ -136,6 +190,22 @@ export default function LoveLetters() {
       }
     }
   };
+
+  const filteredLetters = letters.filter((l) => {
+    if (authorFilter === 'mine') {
+      return l.author?.toLowerCase().includes(profile.name.toLowerCase());
+    }
+    if (authorFilter === 'partner') {
+      return l.author?.toLowerCase().includes(partnerName.toLowerCase());
+    }
+    if (authorFilter === 'julian') {
+      return l.author?.toLowerCase().includes('julián') || l.author?.toLowerCase().includes('julian');
+    }
+    if (authorFilter === 'yanet') {
+      return l.author?.toLowerCase().includes('yanet');
+    }
+    return true;
+  });
 
   return (
     <div className="space-y-8 py-6 max-w-4xl mx-auto">
@@ -152,7 +222,7 @@ export default function LoveLetters() {
             </h2>
           </div>
           <p className="text-xs text-stone-400 mt-1">
-            Palabras y promesas escritas por Julián para Yanet, con citas de Morat, Tan Biónica y la complicidad de cada día.
+            Palabras, promesas y complicidad mutua entre Julián y Yanet, con acordes de Morat, Tan Biónica y Airbag.
           </p>
         </div>
 
@@ -165,7 +235,7 @@ export default function LoveLetters() {
             <span>Carta Sorpresa</span>
           </button>
           <button
-            onClick={() => setViewMode(viewMode === 'write' ? 'list' : 'write')}
+            onClick={viewMode === 'write' ? () => setViewMode('list') : handleStartNewLetter}
             className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-pink-700 hover:from-rose-500 hover:to-pink-600 text-white font-semibold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-rose-950"
           >
             {viewMode === 'write' ? <BookOpen className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
@@ -174,44 +244,55 @@ export default function LoveLetters() {
         </div>
       </div>
 
-      {/* VIEW MODE: WRITE NEW LETTER */}
+      {/* VIEW MODE: WRITE / EDIT LETTER */}
       {viewMode === 'write' && (
         <div className="bg-[#140816]/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-rose-950/70 shadow-2xl space-y-6">
           <div className="flex items-center justify-between border-b border-rose-950/60 pb-4">
             <h3 className="font-serif-romantic text-xl font-bold text-stone-100 flex items-center gap-2">
               <Feather className="w-5 h-5 text-rose-400" />
-              Redactar una Nueva Carta de Amor para Yanet
+              <span>
+                {editingLetterId 
+                  ? 'Editar Carta de Amor' 
+                  : (isJulian ? 'Redactar Carta de Julián para Yanet' : 'Redactar Carta de Yanet para Julián')}
+              </span>
             </h3>
             <button
-              onClick={() => setViewMode('list')}
-              className="text-stone-400 hover:text-stone-200 text-xs flex items-center gap-1"
+              onClick={() => {
+                setEditingLetterId(null);
+                setViewMode('list');
+              }}
+              className="text-stone-400 hover:text-stone-200 text-xs flex items-center gap-1 cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Volver a la lista</span>
             </button>
           </div>
 
-          <form onSubmit={handleSaveNewLetter} className="space-y-4">
+          <form onSubmit={handleSaveLetterForm} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-stone-300 mb-1">
-                  Autor
+                  Autor de la carta
                 </label>
-                <div className="w-full bg-[#1c0b1f] border border-rose-950/80 text-rose-300 text-xs rounded-xl p-2.5 flex items-center gap-2 font-semibold">
-                  <Feather className="w-3.5 h-3.5 text-rose-400" />
-                  <span>Julián (escrito por mí)</span>
-                </div>
+                <select
+                  value={newLetter.author}
+                  onChange={(e) => setNewLetter({ ...newLetter, author: e.target.value })}
+                  className="w-full bg-[#1c0b1f] border border-rose-950/80 text-rose-300 text-xs rounded-xl p-2.5 focus:outline-none focus:border-rose-500 font-semibold"
+                >
+                  <option value="Julián">Julián 👑</option>
+                  <option value="Yanet">Yanet 🌸</option>
+                </select>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-stone-300 mb-1">
-                  Para (Destinataria)
+                  Para (Destinatario/a)
                 </label>
                 <input
                   type="text"
                   value={newLetter.recipient}
                   onChange={(e) => setNewLetter({ ...newLetter, recipient: e.target.value })}
-                  placeholder="Yanet (Mi muñeca, Mi memé...)"
+                  placeholder={isJulian ? 'Yanet (Mi muñeca, Mi memé...)' : 'Julián (Mi rey, Mi amor...)'}
                   className="w-full bg-[#1c0b1f] border border-rose-950/80 text-stone-100 text-xs rounded-xl p-2.5 focus:outline-none focus:border-rose-500 placeholder-stone-500"
                 />
               </div>
@@ -260,7 +341,10 @@ export default function LoveLetters() {
             <div className="flex justify-end gap-3 pt-2">
               <button
                 type="button"
-                onClick={() => setViewMode('list')}
+                onClick={() => {
+                  setEditingLetterId(null);
+                  setViewMode('list');
+                }}
                 className="px-4 py-2 rounded-xl text-stone-400 hover:text-stone-200 hover:bg-rose-950/40 text-xs font-semibold transition-colors cursor-pointer"
               >
                 Cancelar
@@ -270,7 +354,7 @@ export default function LoveLetters() {
                 className="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs shadow-md shadow-rose-950 flex items-center gap-2 cursor-pointer transition-transform hover:scale-105"
               >
                 <Send className="w-4 h-4" />
-                <span>Guardar y Sellar Carta</span>
+                <span>{editingLetterId ? 'Guardar Cambios' : 'Guardar y Sellar Carta'}</span>
               </button>
             </div>
           </form>
@@ -288,9 +372,20 @@ export default function LoveLetters() {
               <ArrowLeft className="w-4 h-4" />
               <span>Volver a todas las cartas</span>
             </button>
-            <span className="text-xs text-stone-400 italic">
-              Sellada con amor eterno
-            </span>
+            
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleStartEditLetter(activeLetter)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-950/60 hover:bg-rose-900/60 text-rose-300 hover:text-rose-100 text-xs font-semibold border border-rose-800/40 transition-colors cursor-pointer"
+                title="Editar esta carta"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>Editar Carta</span>
+              </button>
+              <span className="text-xs text-stone-400 italic hidden sm:inline">
+                Sellada con amor eterno
+              </span>
+            </div>
           </div>
 
           {/* Interactive Envelope Graphic */}
@@ -356,53 +451,137 @@ export default function LoveLetters() {
       {/* VIEW MODE: LIST OF LETTERS */}
       {viewMode === 'list' && (
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {letters.map((letter) => (
-              <div
-                key={letter.id}
-                onClick={() => handleOpenLetter(letter)}
-                className="group relative bg-[#150a18]/90 backdrop-blur-md p-5 rounded-3xl border border-rose-950/70 hover:border-rose-700/60 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col justify-between"
-              >
-                {/* Decorative envelope fold top */}
-                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-rose-900/20 to-transparent rounded-bl-full pointer-events-none" />
+          
+          {/* Author filter tabs */}
+          <div className="flex flex-wrap items-center gap-2 bg-[#120716]/80 p-2 rounded-2xl border border-rose-950/60">
+            <span className="text-xs text-stone-400 flex items-center gap-1.5 px-2">
+              <Filter className="w-3.5 h-3.5 text-rose-400" />
+              <span>Filtrar:</span>
+            </span>
+            <button
+              onClick={() => setAuthorFilter('all')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                authorFilter === 'all'
+                  ? 'bg-rose-950/80 text-rose-200 border border-rose-700/60'
+                  : 'text-stone-400 hover:text-stone-200 hover:bg-white/5'
+              }`}
+            >
+              Todas ({letters.length})
+            </button>
+            <button
+              onClick={() => setAuthorFilter('mine')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                authorFilter === 'mine'
+                  ? 'bg-rose-950/80 text-rose-200 border border-rose-700/60'
+                  : 'text-stone-400 hover:text-stone-200 hover:bg-white/5'
+              }`}
+            >
+              Escritas por mí ({profile.name})
+            </button>
+            <button
+              onClick={() => setAuthorFilter('partner')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                authorFilter === 'partner'
+                  ? 'bg-rose-950/80 text-rose-200 border border-rose-700/60'
+                  : 'text-stone-400 hover:text-stone-200 hover:bg-white/5'
+              }`}
+            >
+              Para mí (de {partnerName})
+            </button>
+            <button
+              onClick={() => setAuthorFilter('julian')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                authorFilter === 'julian'
+                  ? 'bg-amber-950/80 text-amber-200 border border-amber-700/60'
+                  : 'text-stone-400 hover:text-stone-200 hover:bg-white/5'
+              }`}
+            >
+              👑 Julián
+            </button>
+            <button
+              onClick={() => setAuthorFilter('yanet')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                authorFilter === 'yanet'
+                  ? 'bg-pink-950/80 text-pink-200 border border-pink-700/60'
+                  : 'text-stone-400 hover:text-stone-200 hover:bg-white/5'
+              }`}
+            >
+              🌸 Yanet
+            </button>
+          </div>
 
-                <div>
-                  <div className="flex items-center justify-between text-xs text-stone-400 mb-2">
-                    <span className="flex items-center gap-1 font-medium text-rose-300 bg-rose-950/60 px-2.5 py-0.5 rounded-full border border-rose-800/40 text-[11px]">
-                      <Feather className="w-3 h-3 text-rose-400" />
-                      De {letter.author} para {letter.recipient}
-                    </span>
-                    <span>{letter.date}</span>
+          {filteredLetters.length === 0 ? (
+            <div className="text-center py-12 p-8 rounded-3xl bg-[#140816]/70 border border-rose-950/60 space-y-3">
+              <Mail className="w-10 h-10 text-stone-500 mx-auto" />
+              <p className="text-stone-300 font-serif-romantic text-lg">
+                No hay cartas en esta categoría todavía.
+              </p>
+              <button
+                onClick={handleStartNewLetter}
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition-all"
+              >
+                Escribir una carta ahora
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredLetters.map((letter) => (
+                <div
+                  key={letter.id}
+                  onClick={() => handleOpenLetter(letter)}
+                  className="group relative bg-[#150a18]/90 backdrop-blur-md p-5 rounded-3xl border border-rose-950/70 hover:border-rose-700/60 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col justify-between"
+                >
+                  {/* Decorative envelope fold top */}
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-rose-900/20 to-transparent rounded-bl-full pointer-events-none" />
+
+                  <div>
+                    <div className="flex items-center justify-between text-xs text-stone-400 mb-2">
+                      <span className="flex items-center gap-1 font-medium text-rose-300 bg-rose-950/60 px-2.5 py-0.5 rounded-full border border-rose-800/40 text-[11px]">
+                        <Feather className="w-3 h-3 text-rose-400" />
+                        De {letter.author} para {letter.recipient}
+                      </span>
+                      <span>{letter.date}</span>
+                    </div>
+
+                    <h3 className="font-serif-romantic text-lg font-bold text-stone-100 group-hover:text-rose-300 transition-colors line-clamp-1">
+                      {letter.title}
+                    </h3>
+
+                    <p className="text-xs text-stone-400 mt-2 line-clamp-3 leading-relaxed font-serif-romantic italic">
+                      "{letter.content.slice(0, 160)}..."
+                    </p>
                   </div>
 
-                  <h3 className="font-serif-romantic text-lg font-bold text-stone-100 group-hover:text-rose-300 transition-colors line-clamp-1">
-                    {letter.title}
-                  </h3>
+                  <div className="mt-4 pt-3 border-t border-rose-950/60 flex items-center justify-between text-xs">
+                    <span className="font-semibold text-rose-400 group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                      <span>Abrir sobre y leer</span>
+                      <span>→</span>
+                    </span>
 
-                  <p className="text-xs text-stone-400 mt-2 line-clamp-3 leading-relaxed font-serif-romantic italic">
-                    "{letter.content.slice(0, 160)}..."
-                  </p>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={(e) => handleStartEditLetter(letter, e)}
+                        className="p-1.5 text-stone-400 hover:text-amber-300 rounded-lg hover:bg-rose-950/50 transition-colors"
+                        title="Editar carta"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+
+                      {letter.id.toString().startsWith('custom-') && (
+                        <button
+                          onClick={(e) => handleDeleteLetter(letter.id, e)}
+                          className="p-1.5 text-stone-400 hover:text-rose-400 rounded-lg hover:bg-rose-950/50 transition-colors"
+                          title="Eliminar carta"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
-
-                <div className="mt-4 pt-3 border-t border-rose-950/60 flex items-center justify-between text-xs">
-                  <span className="font-semibold text-rose-400 group-hover:translate-x-1 transition-transform flex items-center gap-1">
-                    <span>Abrir sobre y leer</span>
-                    <span>→</span>
-                  </span>
-
-                  {letter.id.toString().startsWith('custom-') && (
-                    <button
-                      onClick={(e) => handleDeleteLetter(letter.id, e)}
-                      className="p-1.5 text-stone-400 hover:text-rose-400 rounded-lg hover:bg-rose-950/40 transition-colors"
-                      title="Eliminar carta"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

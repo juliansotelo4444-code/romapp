@@ -17,15 +17,7 @@ import {
   Gift
 } from 'lucide-react';
 import { triggerLoveConfetti } from '../utils/confetti';
-
-const NICKNAMES_GREETINGS = [
-  'Hola, mi muñeca hermosa',
-  'Hola, mi amor de mi vida',
-  'Hola, mi bebota linda',
-  'Hola, mi vida entera',
-  'Hola, mi bebé',
-  'Hola, mi memé adorado'
-];
+import { useProfile } from '../context/ProfileContext';
 
 const ROMANTIC_LYRICS = [
   { quote: '"Si tú me pides que te cante una canción, te canto mil... si me regalas de tus días y tus flores."', band: 'Morat' },
@@ -36,9 +28,16 @@ const ROMANTIC_LYRICS = [
 ];
 
 export default function HomeHero({ onNavigate, isIntimateUnlocked, onOpenSpotify }) {
+  const { profile, isJulian, isYanet, partnerName } = useProfile();
   const [greetingIndex, setGreetingIndex] = useState(0);
   const [lyricIndex, setLyricIndex] = useState(0);
   const [targetEvent, setTargetEvent] = useState('civil'); // 'civil', 'party', 'bariloche'
+
+  const currentGreetings = profile.greetings || [
+    'Hola, mi amor de mi vida',
+    'Hola, mi vida entera',
+    'Hola, mi corazón'
+  ];
 
   // Time remaining states
   const [timeLeft, setTimeLeft] = useState({
@@ -52,7 +51,7 @@ export default function HomeHero({ onNavigate, isIntimateUnlocked, onOpenSpotify
   // Rotate greetings
   useEffect(() => {
     const greetingTimer = setInterval(() => {
-      setGreetingIndex((prev) => (prev + 1) % NICKNAMES_GREETINGS.length);
+      setGreetingIndex((prev) => (prev + 1) % currentGreetings.length);
     }, 4000);
 
     const lyricTimer = setInterval(() => {
@@ -63,7 +62,7 @@ export default function HomeHero({ onNavigate, isIntimateUnlocked, onOpenSpotify
       clearInterval(greetingTimer);
       clearInterval(lyricTimer);
     };
-  }, []);
+  }, [currentGreetings.length]);
 
   // Countdown calculations
   useEffect(() => {
@@ -116,20 +115,22 @@ export default function HomeHero({ onNavigate, isIntimateUnlocked, onOpenSpotify
 
         <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
           
-          {/* Couple badge */}
+          {/* Couple & Active Profile badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-medium text-rose-200">
-            <Sparkles className="w-4 h-4 text-amber-300 animate-spin" style={{ animationDuration: '6s' }} />
-            <span>Julián & Yanet</span>
+            <span className="text-base">{profile.emoji}</span>
+            <span className="font-bold text-white">{profile.name}</span>
             <span className="w-1 h-1 rounded-full bg-rose-300" />
-            <span className="text-amber-200 font-serif-romantic italic">Nuestra Historia Eterna</span>
+            <span className="text-amber-200 font-serif-romantic italic">
+              Con mi amor {partnerName}
+            </span>
           </div>
 
           {/* Dynamic rotating greeting */}
           <h1 className="font-serif-romantic text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-tight">
             <span className="block text-rose-300 text-xl sm:text-2xl md:text-3xl font-sans font-light tracking-wide mb-2 transition-all duration-700">
-              {NICKNAMES_GREETINGS[greetingIndex]} ❤️
+              {currentGreetings[greetingIndex]} ❤️
             </span>
-            Bienvenida a nuestra app de amor
+            {isJulian ? 'Bienvenido a nuestra app de amor' : 'Bienvenida a nuestra app de amor'}
           </h1>
 
           <p className="text-base sm:text-lg text-rose-100/90 font-light max-w-2xl mx-auto leading-relaxed">

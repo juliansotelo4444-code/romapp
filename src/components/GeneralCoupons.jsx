@@ -25,11 +25,16 @@ import {
   Lock,
   Unlock,
   Clock,
-  Home
+  Home,
+  Plus,
+  Edit3,
+  Trash2,
+  X
 } from 'lucide-react';
 import { GENERAL_COUPONS } from '../data/generalCoupons';
 import { triggerLoveConfetti } from '../utils/confetti';
 import { fetchSyncData, apiRedeemCoupon, apiReactivateCoupon } from '../api/client';
+import { useProfile } from '../context/ProfileContext';
 
 export function isConvivenciaCoupon(coupon) {
   if (coupon.category === 'Tregua Doméstica & Convivencia') return true;
@@ -67,11 +72,22 @@ const ICON_MAP = {
 };
 
 export default function GeneralCoupons() {
+  const { profile, isJulian, isYanet, partnerName } = useProfile();
   const [coupons, setCoupons] = useState([]);
   const [activeCategory, setActiveCategory] = useState('Todos (Noviazgo)');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
+
+  // Custom coupon modal state
+  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
+  const [editingCouponId, setEditingCouponId] = useState(null);
+  const [couponForm, setCouponForm] = useState({
+    title: '',
+    description: '',
+    category: 'Mimos y Cuidado Diario',
+    icon: 'Heart'
+  });
 
   // Progressive daily unlock state (starts with 8 noviazgo coupons unlocked)
   const [unlockedNoviazgoCount, setUnlockedNoviazgoCount] = useState(() => {
@@ -140,7 +156,8 @@ export default function GeneralCoupons() {
         syncData.coupons.forEach((row) => {
           remoteMap.set(row.coupon_id, {
             redeemed: row.redeemed,
-            redeemedAt: row.redeemed_at
+            redeemedAt: row.redeemed_at,
+            redeemedBy: row.redeemed_by
           });
         });
 
@@ -148,7 +165,12 @@ export default function GeneralCoupons() {
           const synced = prev.map((c) => {
             const remote = remoteMap.get(c.id);
             if (remote) {
-              return { ...c, redeemed: remote.redeemed, redeemedAt: remote.redeemedAt };
+              return { 
+                ...c, 
+                redeemed: remote.redeemed, 
+                redeemedAt: remote.redeemedAt,
+                redeemedBy: remote.redeemedBy || c.redeemedBy || null
+              };
             }
             return c;
           });
@@ -170,28 +192,92 @@ export default function GeneralCoupons() {
       month: 'long',
       year: 'numeric'
     });
+    const who = profile.name;
 
     const updated = coupons.map((c) => {
       if (c.id === id) {
-        return { ...c, redeemed: true, redeemedAt: today };
+        return { ...c, redeemed: true, redeemedAt: today, redeemedBy: who };
       }
       return c;
     });
 
     saveCoupons(updated);
     triggerLoveConfetti();
-    apiRedeemCoupon(id, today);
+    apiRedeemCoupon(id, today, who);
   };
 
   const handleReactivate = (id) => {
     const updated = coupons.map((c) => {
       if (c.id === id) {
-        return { ...c, redeemed: false, redeemedAt: null };
+        return { ...c, redeemed: false, redeemedAt: null, redeemedBy: null };
       }
       return c;
     });
     saveCoupons(updated);
     apiReactivateCoupon(id);
+  };
+
+  const handleOpenCreateModal = () => {
+    setEditingCouponId(null);
+    setCouponForm({
+      title: '',
+      description: '',
+      category: 'Mimos y Cuidado Diario',
+      icon: 'Heart'
+    });
+    setIsCouponModalOpen(true);
+  };
+
+  const handleOpenEditModal = (coupon, e) => {
+    if (e) e.stopPropagation();
+    setEditingCouponId(coupon.id);
+    setCouponForm({
+      title: coupon.title,
+      description: coupon.description,
+      category: coupon.category,
+      icon: coupon.icon || 'Heart'
+    });
+    setIsCouponModalOpen(true);
+  };
+
+  const handleSaveCouponForm = (e) => {
+    e.preventDefault();
+    if (!couponForm.title.trim()) return;
+
+    if (editingCouponId) {
+      // Edit existing coupon
+      const updated = coupons.map((c) =>
+        c.id === editingCouponId ? { ...c, ...couponForm } : c
+      );
+      saveCoupons(updated);
+      triggerLoveConfetti();
+    } else {
+      // Create new custom coupon
+      const created = {
+        id: 'custom-cp-' + Date.now(),
+        ...couponForm,
+        author: profile.name,
+        recipient: partnerName,
+        isCustom: true,
+        redeemed: false,
+        redeemedAt: null,
+        redeemedBy: null
+      };
+      const updated = [created, ...coupons];
+      saveCoupons(updated);
+      triggerLoveConfetti();
+    }
+
+    setIsCouponModalOpen(false);
+    setEditingCouponId(null);
+  };
+
+  const handleDeleteCoupon = (id, e) => {
+    if (e) e.stopPropagation();
+    if (confirm('¿Deseas eliminar este cupón personalizado?')) {
+      const updated = coupons.filter((c) => c.id !== id);
+      saveCoupons(updated);
+    }
   };
 
   // Compute noviazgo coupons and index mapping
@@ -213,6 +299,8 @@ export default function GeneralCoupons() {
 
   const categories = [
     'Todos (Noviazgo)',
+    '✨ Creados por Nosotros',
+    `Canjeados por ${profile.name}`,
     'Citas, Gastronomía & Salidas',
     'Mimos y Cuidado Diario',
     'Música, Salidas y Citas',
@@ -230,7 +318,9 @@ export default function GeneralCoupons() {
       const isConvivencia = isConvivenciaCoupon(c);
       let isUnlocked = false;
 
-      if (isConvivencia) {
+      if (c.isCustom) {
+        isUnlocked = true;
+      } else if (isConvivencia) {
         isUnlocked = false; // Strictly locked for post-wedding living together
       } else {
         isUnlocked = noviazgoCounter < unlockedNoviazgoCount;
@@ -249,7 +339,11 @@ export default function GeneralCoupons() {
   const filteredCoupons = useMemo(() => {
     return enrichedCoupons.filter((c) => {
       // Category filter
-      if (activeCategory === 'Canjeados') {
+      if (activeCategory === '✨ Creados por Nosotros') {
+        if (!c.isCustom) return false;
+      } else if (activeCategory.startsWith('Canjeados por')) {
+        if (!c.redeemed || c.redeemedBy !== profile.name) return false;
+      } else if (activeCategory === 'Canjeados') {
         if (!c.redeemed) return false;
       } else if (activeCategory === '🔒 Convivencia (Bloqueados)') {
         if (!c.isConvivencia) return false;
@@ -273,7 +367,7 @@ export default function GeneralCoupons() {
 
       return true;
     });
-  }, [enrichedCoupons, activeCategory, searchQuery]);
+  }, [enrichedCoupons, activeCategory, searchQuery, profile.name]);
 
   // Pagination
   const totalPages = Math.ceil(filteredCoupons.length / itemsPerPage);
@@ -305,17 +399,24 @@ export default function GeneralCoupons() {
           </p>
         </div>
 
-        {/* Counter Pills */}
+        {/* Counter Pills & Create Button */}
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={handleOpenCreateModal}
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-pink-700 hover:from-rose-500 hover:to-pink-600 text-white font-semibold text-xs shadow-md shadow-rose-950 hover:scale-105 transition-all cursor-pointer flex items-center gap-1.5"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Crear Vale de Amor</span>
+          </button>
           <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-rose-950/60 text-rose-300 border border-rose-800/50">
-            {availableNoviazgoCount} Desbloqueados para Canjear
+            {availableNoviazgoCount} Desbloqueados
           </span>
           <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#1a0a1e] text-stone-400 border border-rose-950/50">
             {redeemedCount} Canjeados
           </span>
           <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-amber-950/40 text-amber-300/80 border border-amber-800/40 flex items-center gap-1">
             <Lock className="w-3 h-3 text-amber-400" />
-            {totalConvivenciaCount} Convivencia (Bloqueados)
+            {totalConvivenciaCount} Convivencia
           </span>
         </div>
       </div>
@@ -547,21 +648,45 @@ export default function GeneralCoupons() {
                 {/* Stamped visual seal for redeemed */}
                 {coupon.redeemed && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                    <div className="transform -rotate-12 border-2 border-rose-500/80 text-rose-400 px-4 py-2 rounded-2xl font-black text-center tracking-widest uppercase bg-[#0f0512]/90 backdrop-blur-md shadow-2xl">
-                      <span className="block text-sm font-extrabold">CANJEADO</span>
-                      <span className="text-[10px] block mt-0.5">{coupon.redeemedAt}</span>
+                    <div className="transform -rotate-12 border-2 border-rose-500/80 text-rose-300 px-5 py-2.5 rounded-2xl font-black text-center tracking-wider uppercase bg-[#0f0512]/95 backdrop-blur-md shadow-2xl space-y-0.5">
+                      <span className="block text-xs font-black text-rose-400">CANJEADO</span>
+                      <span className="text-[11px] font-bold text-amber-300 block">
+                        Por {coupon.redeemedBy || 'Nosotros'}
+                      </span>
+                      <span className="text-[9px] block text-stone-400 font-mono">{coupon.redeemedAt}</span>
                     </div>
                   </div>
                 )}
 
                 <div className="p-6">
-                  {/* Category Pill & Icon */}
+                  {/* Category Pill & Icon / Edit Controls */}
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-rose-950/60 text-rose-300 border border-rose-800/40 max-w-[200px] truncate" title={coupon.category}>
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-rose-950/60 text-rose-300 border border-rose-800/40 max-w-[190px] truncate" title={coupon.category}>
                       {coupon.category}
                     </span>
-                    <div className="w-8 h-8 rounded-xl bg-amber-950/60 text-amber-400 border border-amber-800/40 flex items-center justify-center">
-                      <IconComponent className="w-4 h-4" />
+                    
+                    <div className="flex items-center gap-1.5">
+                      {coupon.isCustom && (
+                        <div className="flex items-center gap-1 mr-1">
+                          <button
+                            onClick={(e) => handleOpenEditModal(coupon, e)}
+                            className="p-1 text-stone-400 hover:text-amber-300 rounded-lg hover:bg-white/10 transition-colors"
+                            title="Editar cupón"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => handleDeleteCoupon(coupon.id, e)}
+                            className="p-1 text-stone-400 hover:text-rose-400 rounded-lg hover:bg-white/10 transition-colors"
+                            title="Eliminar cupón"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+                      <div className="w-8 h-8 rounded-xl bg-amber-950/60 text-amber-400 border border-amber-800/40 flex items-center justify-center">
+                        <IconComponent className="w-4 h-4" />
+                      </div>
                     </div>
                   </div>
 
@@ -572,12 +697,20 @@ export default function GeneralCoupons() {
                   <p className="text-xs text-stone-400 mt-2 leading-relaxed">
                     {coupon.description}
                   </p>
+
+                  {coupon.author && (
+                    <div className="mt-3 text-[10px] text-rose-300/80 font-medium">
+                      Regalo de <strong>{coupon.author}</strong> para <strong>{coupon.recipient || partnerName}</strong>
+                    </div>
+                  )}
                 </div>
 
                 {/* Footer Action */}
                 <div className="p-4 bg-[#100612]/90 border-t border-rose-950/60 flex items-center justify-between">
                   <span className="text-[10px] text-stone-400 font-medium">
-                    {coupon.redeemed ? `Canjeado: ${coupon.redeemedAt}` : 'Válido durante el noviazgo'}
+                    {coupon.redeemed 
+                      ? `${coupon.redeemedBy ? `${coupon.redeemedBy} • ` : ''}${coupon.redeemedAt}` 
+                      : 'Válido durante el noviazgo'}
                   </span>
 
                   {coupon.redeemed ? (
@@ -632,6 +765,120 @@ export default function GeneralCoupons() {
           >
             Siguiente
           </button>
+        </div>
+      )}
+
+      {/* CREATE / EDIT COUPON MODAL */}
+      {isCouponModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div 
+            className="relative w-full max-w-lg bg-[#140816] border border-rose-900/60 rounded-3xl p-6 sm:p-8 shadow-2xl text-stone-100 space-y-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-rose-950/60 pb-3">
+              <h3 className="font-serif-romantic text-xl font-bold text-white flex items-center gap-2">
+                <Gift className="w-5 h-5 text-rose-400" />
+                <span>{editingCouponId ? 'Editar Vale de Amor' : 'Crear Nuevo Vale de Amor'}</span>
+              </h3>
+              <button
+                onClick={() => setIsCouponModalOpen(false)}
+                className="p-1.5 rounded-xl text-stone-400 hover:text-white hover:bg-white/10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCouponForm} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1">
+                  Título del Vale
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={couponForm.title}
+                  onChange={(e) => setCouponForm({ ...couponForm, title: e.target.value })}
+                  placeholder="Ej: Vale por una tarde de masajes de cuello y espalda"
+                  className="w-full bg-[#1c0b1f] border border-rose-950/80 text-stone-100 text-xs rounded-xl p-2.5 focus:outline-none focus:border-rose-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1">
+                  Descripción y Reglas de Canje
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  value={couponForm.description}
+                  onChange={(e) => setCouponForm({ ...couponForm, description: e.target.value })}
+                  placeholder="Ej: Válido por 30 minutos de masaje con crema o aceites aromáticos, sin límite de horario."
+                  className="w-full bg-[#1c0b1f] border border-rose-950/80 text-stone-100 text-xs rounded-xl p-2.5 focus:outline-none focus:border-rose-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-stone-300 mb-1">
+                    Categoría
+                  </label>
+                  <select
+                    value={couponForm.category}
+                    onChange={(e) => setCouponForm({ ...couponForm, category: e.target.value })}
+                    className="w-full bg-[#1c0b1f] border border-rose-950/80 text-stone-100 text-xs rounded-xl p-2.5 focus:outline-none focus:border-rose-500 font-medium"
+                  >
+                    <option value="Mimos y Cuidado Diario">Mimos y Cuidado Diario</option>
+                    <option value="Citas, Gastronomía & Salidas">Citas, Gastronomía & Salidas</option>
+                    <option value="Música, Salidas y Citas">Música, Salidas y Citas</option>
+                    <option value="Sensuales & Pícaros (After Dark)">Sensuales & Pícaros (After Dark)</option>
+                    <option value="Especiales Boda y Bariloche">Especiales Boda y Bariloche</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-stone-300 mb-1">
+                    Ícono del Vale
+                  </label>
+                  <select
+                    value={couponForm.icon}
+                    onChange={(e) => setCouponForm({ ...couponForm, icon: e.target.value })}
+                    className="w-full bg-[#1c0b1f] border border-rose-950/80 text-stone-100 text-xs rounded-xl p-2.5 focus:outline-none focus:border-rose-500 font-medium"
+                  >
+                    <option value="Heart">❤️ Corazón</option>
+                    <option value="Coffee">☕ Café / Desayuno</option>
+                    <option value="Sparkles">✨ Magia / Especial</option>
+                    <option value="Flame">🔥 Pasión / Fuego</option>
+                    <option value="Wine">🍷 Copa / Brindis</option>
+                    <option value="Gift">🎁 Regalo Sorpresa</option>
+                    <option value="Tv">📺 Películas / Series</option>
+                    <option value="Moon">🌙 Noche / Dormir</option>
+                    <option value="Car">🚗 Paseo / Salida</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-rose-950/40 border border-rose-800/30 text-xs text-rose-300 flex items-center justify-between">
+                <span>Otorgado por: <strong>{profile.name}</strong></span>
+                <span>Para: <strong>{partnerName}</strong></span>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsCouponModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-stone-400 hover:text-stone-200 hover:bg-rose-950/40 text-xs font-semibold cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-pink-700 hover:from-rose-500 hover:to-pink-600 text-white font-semibold text-xs shadow-md shadow-rose-950 cursor-pointer"
+                >
+                  {editingCouponId ? 'Guardar Cambios' : 'Crear Vale'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
