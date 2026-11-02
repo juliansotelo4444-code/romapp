@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Heart, 
   Sparkles, 
   Calendar, 
   MapPin, 
@@ -9,15 +8,67 @@ import {
   Flame, 
   Clock, 
   ArrowRight,
-  Music,
   Compass,
-  Lock,
-  Unlock,
-  ShieldCheck,
-  Gift
+  Gift,
+  Plus,
+  Trash2,
+  Camera,
+  X
 } from 'lucide-react';
 import { triggerLoveConfetti } from '../utils/confetti';
 import { useProfile } from '../context/ProfileContext';
+import { fetchSyncData, apiSaveMilestone, apiDeleteMilestone } from '../api/client';
+
+const DEFAULT_MILESTONES = [
+  {
+    id: 'm1',
+    title: 'El Primer Flechazo',
+    date: 'El inicio de todo',
+    description: 'El día en que nuestras vidas se cruzaron y supimos que no había vuelta atrás. Comenzaba la aventura más hermosa.',
+    icon: '✨',
+    photoUrl: ''
+  },
+  {
+    id: 'm2',
+    title: 'Viajes, Rutas & Canciones',
+    date: 'Nuestros Conciertos',
+    description: 'Horas en la ruta cantando Morat, Tan Biónica y Airbag a todo pulmón. Compañeros de música y de vida.',
+    icon: '🎶',
+    photoUrl: ''
+  },
+  {
+    id: 'm3',
+    title: 'La Propuesta Inolvidable',
+    date: 'El Gran "Sí"',
+    description: 'Ese momento mágico en el que dijimos "para siempre" con lágrimas en los ojos y el corazón desbordado de amor.',
+    icon: '💍',
+    photoUrl: ''
+  },
+  {
+    id: 'm4',
+    title: 'Casamiento Civil',
+    date: '8 de Octubre',
+    description: 'La firma ante la ley y la vida que sella nuestro compromiso como esposos. ¡Oficialmente marido y mujer!',
+    icon: '🏛️',
+    photoUrl: ''
+  },
+  {
+    id: 'm5',
+    title: 'La Gran Fiesta de Boda',
+    date: '9 de Octubre',
+    description: 'Bailar hasta el amanecer, brindar con la gente que amamos y celebrar la unión más linda de todas.',
+    icon: '🥂',
+    photoUrl: ''
+  },
+  {
+    id: 'm6',
+    title: 'Luna de Miel en Bariloche',
+    date: '11 de Octubre',
+    description: '10 días en el sur argentino: lago Nahuel Huapi, montañas, paseos en catamarán, chocolates y amor sin límites.',
+    icon: '🏔️',
+    photoUrl: ''
+  }
+];
 
 const ROMANTIC_LYRICS = [
   { quote: '"Si tú me pides que te cante una canción, te canto mil... si me regalas de tus días y tus flores."', band: 'Morat' },
@@ -32,6 +83,94 @@ export default function HomeHero({ onNavigate, isIntimateUnlocked, onOpenSpotify
   const [greetingIndex, setGreetingIndex] = useState(0);
   const [lyricIndex, setLyricIndex] = useState(0);
   const [targetEvent, setTargetEvent] = useState('civil'); // 'civil', 'party', 'bariloche'
+
+  // Milestones State
+  const [milestones, setMilestones] = useState(() => {
+    const saved = localStorage.getItem('romapp_milestones');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return DEFAULT_MILESTONES;
+      }
+    }
+    return DEFAULT_MILESTONES;
+  });
+
+  const [showAddMilestoneModal, setShowAddMilestoneModal] = useState(false);
+  const [newMilestone, setNewMilestone] = useState({
+    title: '',
+    date: '',
+    description: '',
+    icon: '💖',
+    photoUrl: ''
+  });
+
+  // Sync milestones with backend
+  useEffect(() => {
+    fetchSyncData().then((sync) => {
+      if (sync && Array.isArray(sync.milestones) && sync.milestones.length > 0) {
+        setMilestones((prev) => {
+          const map = new Map();
+          DEFAULT_MILESTONES.forEach(m => map.set(m.id, m));
+          prev.forEach(m => map.set(m.id, m));
+          sync.milestones.forEach(m => map.set(m.id, m));
+          const list = Array.from(map.values());
+          localStorage.setItem('romapp_milestones', JSON.stringify(list));
+          return list;
+        });
+      }
+    });
+  }, []);
+
+  const handleAddMilestone = (e) => {
+    e.preventDefault();
+    if (!newMilestone.title.trim() || !newMilestone.description.trim()) return;
+
+    const item = {
+      id: `milestone-${Date.now()}`,
+      title: newMilestone.title.trim(),
+      date: newMilestone.date.trim() || 'Momento Inolvidable',
+      description: newMilestone.description.trim(),
+      icon: newMilestone.icon || '💖',
+      photoUrl: newMilestone.photoUrl || '',
+      createdBy: profile.name
+    };
+
+    setMilestones((prev) => {
+      const updated = [...prev, item];
+      localStorage.setItem('romapp_milestones', JSON.stringify(updated));
+      return updated;
+    });
+
+    triggerLoveConfetti();
+    apiSaveMilestone(item);
+    setShowAddMilestoneModal(false);
+    setNewMilestone({ title: '', date: '', description: '', icon: '💖', photoUrl: '' });
+  };
+
+  const handleDeleteMilestone = (id, e) => {
+    if (e) e.stopPropagation();
+    setMilestones((prev) => {
+      const updated = prev.filter(m => m.id !== id);
+      localStorage.setItem('romapp_milestones', JSON.stringify(updated));
+      return updated;
+    });
+    apiDeleteMilestone(id);
+  };
+
+  const handleMilestonePhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (uploadEvt) => {
+      setNewMilestone((prev) => ({
+        ...prev,
+        photoUrl: uploadEvt.target.result
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
 
   const currentGreetings = profile.greetings || [
     'Hola, mi amor de mi vida',
@@ -412,6 +551,213 @@ export default function HomeHero({ onNavigate, isIntimateUnlocked, onOpenSpotify
 
         </div>
       </div>
+
+      {/* --- NUESTRA HISTORIA & HITOS DE AMOR --- */}
+      <div className="space-y-6 pt-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xl">💫</span>
+              <h2 className="font-serif-romantic text-2xl sm:text-3xl font-bold text-white">
+                Nuestra Historia & Hitos Inolvidables
+              </h2>
+            </div>
+            <p className="text-xs sm:text-sm text-stone-400 mt-1">
+              Los momentos que marcaron nuestro camino hasta el altar y la luna de miel en Bariloche
+            </p>
+          </div>
+
+          <button
+            onClick={() => setShowAddMilestoneModal(true)}
+            className="self-start sm:self-auto flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-500/80 to-pink-600/80 hover:from-rose-500 hover:to-pink-600 border border-rose-400/50 text-white text-xs font-semibold shadow-md transition-all cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Agregar Hito o Recuerdo</span>
+          </button>
+        </div>
+
+        {/* Timeline Grid / Carousel */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {milestones.map((m, index) => (
+            <div
+              key={m.id}
+              className="relative rounded-3xl bg-[#140816]/80 backdrop-blur-md border border-rose-950/60 hover:border-rose-500/40 p-5 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between overflow-hidden group"
+            >
+              {/* Top ambient glow */}
+              <div className="absolute top-0 right-0 w-28 h-28 bg-rose-500/10 rounded-full blur-xl pointer-events-none group-hover:bg-rose-500/20 transition-all" />
+
+              <div>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-10 h-10 rounded-2xl bg-black/40 border border-rose-500/30 flex items-center justify-center text-xl shadow-inner">
+                      {m.icon || '❤️'}
+                    </span>
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-600/30">
+                        {m.date}
+                      </span>
+                      <h4 className="font-serif-romantic text-lg font-bold text-white mt-0.5">
+                        {m.title}
+                      </h4>
+                    </div>
+                  </div>
+
+                  {m.id.startsWith('milestone-') && (
+                    <button
+                      onClick={(e) => handleDeleteMilestone(m.id, e)}
+                      className="p-1 rounded-lg text-stone-500 hover:text-rose-400 hover:bg-rose-950/40 opacity-0 group-hover:opacity-100 transition-all"
+                      title="Eliminar hito"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                <p className="text-xs text-stone-300/90 leading-relaxed font-light">
+                  {m.description}
+                </p>
+
+                {/* Optional Photo Attachment */}
+                {m.photoUrl && (
+                  <div className="mt-3 rounded-2xl overflow-hidden border border-rose-900/40 aspect-video bg-black/40">
+                    <img src={m.photoUrl} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-rose-950/50 flex items-center justify-between text-[11px] text-stone-500">
+                <span>Hito #{index + 1} de nuestra vida</span>
+                <span className="text-rose-400/80 font-serif-romantic italic">Julián & Yanet</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Modal: Agregar Hito */}
+      {showAddMilestoneModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div 
+            className="relative w-full max-w-lg rounded-3xl bg-gradient-to-b from-[#180a1c] via-[#120715] to-[#0c040d] border border-rose-900/50 shadow-2xl overflow-hidden text-stone-100 p-6 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-rose-950/60 pb-3">
+              <h3 className="font-serif-romantic text-xl font-bold text-white flex items-center gap-2">
+                <Plus className="w-5 h-5 text-rose-400" />
+                <span>Agregar Hito de Nuestra Historia</span>
+              </h3>
+              <button
+                onClick={() => setShowAddMilestoneModal(false)}
+                className="p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-white/10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddMilestone} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-stone-300 mb-1">
+                    Título del Hito
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newMilestone.title}
+                    onChange={(e) => setNewMilestone({ ...newMilestone, title: e.target.value })}
+                    placeholder="Ej: La primera escapada juntos..."
+                    className="w-full bg-[#1c0b1f] border border-rose-950/80 text-stone-100 text-xs rounded-xl p-2.5 focus:outline-none focus:border-rose-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-stone-300 mb-1">
+                    Fecha o Momento
+                  </label>
+                  <input
+                    type="text"
+                    value={newMilestone.date}
+                    onChange={(e) => setNewMilestone({ ...newMilestone, date: e.target.value })}
+                    placeholder="Ej: Verano 2023, o Fecha..."
+                    className="w-full bg-[#1c0b1f] border border-rose-950/80 text-stone-100 text-xs rounded-xl p-2.5 focus:outline-none focus:border-rose-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1">
+                  Emoji representativo
+                </label>
+                <div className="flex gap-2">
+                  {['💖', '✨', '🎶', '💍', '🚗', '🏔️', '🥂', '☕', '🌟'].map((em) => (
+                    <button
+                      key={em}
+                      type="button"
+                      onClick={() => setNewMilestone({ ...newMilestone, icon: em })}
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center text-base transition-all ${
+                        newMilestone.icon === em ? 'bg-rose-500/30 border border-rose-400 scale-110' : 'bg-black/30'
+                      }`}
+                    >
+                      {em}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1">
+                  Descripción del recuerdo
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  value={newMilestone.description}
+                  onChange={(e) => setNewMilestone({ ...newMilestone, description: e.target.value })}
+                  placeholder="Contá qué pasó y por qué es tan especial para nosotros..."
+                  className="w-full bg-[#1c0b1f] border border-rose-950/80 text-stone-100 text-xs rounded-xl p-2.5 focus:outline-none focus:border-rose-500 resize-none font-light"
+                />
+              </div>
+
+              {/* Foto opcional */}
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-stone-300">
+                  Foto del momento (opcional)
+                </label>
+                <div className="flex items-center gap-2">
+                  <label className="flex items-center gap-2 px-3 py-2 rounded-xl bg-rose-950/50 hover:bg-rose-900/60 border border-rose-800/60 text-xs font-medium text-rose-200 cursor-pointer">
+                    <Camera className="w-4 h-4 text-rose-400" />
+                    <span>Subir imagen</span>
+                    <input type="file" accept="image/*" onChange={handleMilestonePhotoUpload} className="hidden" />
+                  </label>
+                  <input
+                    type="url"
+                    value={newMilestone.photoUrl}
+                    onChange={(e) => setNewMilestone({ ...newMilestone, photoUrl: e.target.value })}
+                    placeholder="O pegar URL de imagen..."
+                    className="flex-1 bg-[#1c0b1f] border border-rose-950/80 text-stone-100 text-xs rounded-xl p-2 focus:outline-none focus:border-rose-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddMilestoneModal(false)}
+                  className="px-4 py-2 rounded-xl text-stone-400 hover:text-stone-200 text-xs font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs shadow-md transition-all"
+                >
+                  Guardar Hito
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

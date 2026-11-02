@@ -13,7 +13,11 @@ import {
   ArrowLeft,
   Feather,
   Edit3,
-  Filter
+  Filter,
+  Camera,
+  Image as ImageIcon,
+  X,
+  Maximize2
 } from 'lucide-react';
 import { SURPRISE_LETTERS } from '../data/surpriseLetters';
 import { triggerLoveConfetti } from '../utils/confetti';
@@ -28,6 +32,7 @@ export default function LoveLetters() {
   const [viewMode, setViewMode] = useState('list'); // 'list', 'read', 'write'
   const [editingLetterId, setEditingLetterId] = useState(null);
   const [authorFilter, setAuthorFilter] = useState('all'); // 'all', 'mine', 'partner', 'julian', 'yanet'
+  const [zoomedPhoto, setZoomedPhoto] = useState(null);
 
   // New letter form state
   const [newLetter, setNewLetter] = useState({
@@ -35,7 +40,8 @@ export default function LoveLetters() {
     author: profile.name,
     recipient: partnerName,
     date: new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' }),
-    content: ''
+    content: '',
+    photoUrl: ''
   });
 
   // Keep author/recipient in sync when profile changes if not editing
@@ -121,7 +127,8 @@ export default function LoveLetters() {
       author: profile.name,
       recipient: partnerName,
       date: new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' }),
-      content: ''
+      content: '',
+      photoUrl: ''
     });
     setViewMode('write');
   };
@@ -134,9 +141,25 @@ export default function LoveLetters() {
       author: letter.author || profile.name,
       recipient: letter.recipient || partnerName,
       date: letter.date || new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' }),
-      content: letter.content
+      content: letter.content,
+      photoUrl: letter.photoUrl || ''
     });
     setViewMode('write');
+  };
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Convert file to base64 Data URL for instant preview and persistence
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      setNewLetter((prev) => ({
+        ...prev,
+        photoUrl: uploadEvent.target.result
+      }));
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSaveLetterForm = (e) => {
@@ -338,6 +361,66 @@ export default function LoveLetters() {
               />
             </div>
 
+            {/* Photo Attachment (Polaroid Memory) */}
+            <div className="p-4 rounded-2xl bg-[#160818]/90 border border-rose-950/80 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-rose-300 flex items-center gap-1.5">
+                  <Camera className="w-4 h-4 text-rose-400" />
+                  <span>Adjuntar Foto / Recuerdo 📸 (Polaroid en la carta)</span>
+                </label>
+                {newLetter.photoUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setNewLetter({ ...newLetter, photoUrl: '' })}
+                    className="text-[11px] text-rose-400 hover:text-rose-200 flex items-center gap-1"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Quitar foto</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                {/* Upload File button */}
+                <label className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-rose-950/50 hover:bg-rose-900/60 border border-rose-800/60 text-xs font-medium text-rose-200 cursor-pointer transition-colors">
+                  <ImageIcon className="w-4 h-4 text-rose-400" />
+                  <span>Subir foto desde este dispositivo</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    className="hidden"
+                  />
+                </label>
+
+                {/* Or paste URL */}
+                <input
+                  type="url"
+                  value={newLetter.photoUrl}
+                  onChange={(e) => setNewLetter({ ...newLetter, photoUrl: e.target.value })}
+                  placeholder="O pegar URL de imagen..."
+                  className="bg-[#1c0b1f] border border-rose-950/80 text-stone-100 text-xs rounded-xl p-2.5 focus:outline-none focus:border-rose-500 placeholder-stone-500"
+                />
+              </div>
+
+              {/* Photo preview preview in Polaroid frame */}
+              {newLetter.photoUrl && (
+                <div className="pt-2 flex items-center gap-3">
+                  <div className="w-16 h-16 rounded-lg overflow-hidden border border-rose-500/50 shrink-0">
+                    <img src={newLetter.photoUrl} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="text-xs text-stone-300">
+                    <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5" /> Foto lista para adjuntar
+                    </span>
+                    <span className="text-stone-400 text-[11px] block">
+                      Aparecerá fijada con cinta en el pergamino como una Polaroid clásica.
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="flex justify-end gap-3 pt-2">
               <button
                 type="button"
@@ -427,6 +510,40 @@ export default function LoveLetters() {
                 <div className="font-serif-romantic text-base sm:text-lg leading-relaxed text-stone-800 whitespace-pre-line space-y-4">
                   {activeLetter.content}
                 </div>
+
+                {/* Attached Polaroid Memory Photo */}
+                {activeLetter.photoUrl && (
+                  <div className="my-8 flex justify-center">
+                    <div 
+                      onClick={() => setZoomedPhoto(activeLetter.photoUrl)}
+                      className="group relative cursor-pointer transform -rotate-1 hover:rotate-0 hover:scale-105 transition-all duration-300 max-w-xs sm:max-w-sm w-full"
+                      title="Click para ver la foto en grande"
+                    >
+                      {/* Vintage masking tape effect on top */}
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-amber-100/70 backdrop-blur-xs border border-amber-300/40 transform -rotate-2 z-10 shadow-xs rounded-xs" />
+
+                      {/* Polaroid Paper Frame */}
+                      <div className="bg-[#fffdf9] p-3.5 pb-8 rounded-sm shadow-[0_15px_35px_rgba(0,0,0,0.18)] border border-stone-300 text-center">
+                        <div className="relative aspect-4/3 overflow-hidden bg-stone-100 rounded-xs mb-3">
+                          <img 
+                            src={activeLetter.photoUrl} 
+                            alt="Foto de nuestro amor" 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center transition-colors">
+                            <div className="bg-black/60 text-white text-xs px-2.5 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                              <Maximize2 className="w-3.5 h-3.5" />
+                              <span>Ampliar</span>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="font-serif-romantic italic text-stone-700 text-sm">
+                          ❤️ Nuestro recuerdo • {activeLetter.date}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Romantic Signature */}
                 <div className="mt-10 pt-6 border-t border-[#ded2be] flex justify-between items-end">
@@ -582,6 +699,31 @@ export default function LoveLetters() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Fullscreen Photo Lightbox Modal */}
+      {zoomedPhoto && (
+        <div 
+          onClick={() => setZoomedPhoto(null)} 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in"
+        >
+          <div 
+            className="relative max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl bg-black border border-stone-800 shadow-2xl p-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img 
+              src={zoomedPhoto} 
+              alt="Recuerdo en grande" 
+              className="max-w-full max-h-[82vh] object-contain rounded-xl mx-auto" 
+            />
+            <button 
+              onClick={() => setZoomedPhoto(null)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-black/70 hover:bg-black/90 text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       )}
 

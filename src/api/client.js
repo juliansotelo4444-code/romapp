@@ -147,3 +147,63 @@ export async function apiSaveQuizAnswer(userId, fantasyId, answer) {
     return false;
   }
 }
+
+// 7. Mimos de Amor en Vivo (Love Pings)
+export async function apiSendPing(ping) {
+  try {
+    const res = await fetchWithTimeout(`${API_BASE}/pings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(ping)
+    });
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+export async function apiMarkPingSeen(pingId) {
+  try {
+    const res = await fetchWithTimeout(`${API_BASE}/pings/${pingId}/seen`, {
+      method: 'POST'
+    });
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+export async function apiGetPings() {
+  try {
+    const res = await fetchWithTimeout(`${API_BASE}/pings`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    return null;
+  }
+}
+
+// 8. Hitos y Momentos de Nuestra Historia
+export async function apiSaveMilestone(milestone) {
+  try {
+    const res = await fetchWithTimeout(`${API_BASE}/milestones`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(milestone)
+    });
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+export async function apiDeleteMilestone(id) {
+  try {
+    const res = await fetchWithTimeout(`${API_BASE}/milestones/${id}`, {
+      method: 'DELETE'
+    });
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
+}

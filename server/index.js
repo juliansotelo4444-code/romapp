@@ -19,12 +19,14 @@ app.get('/api/health', (req, res) => {
 // Sincronización completa inicial
 app.get('/api/sync', async (req, res) => {
   try {
-    const [couponsRes, lettersRes, honeymoonRes, eveNotesRes, quizRes] = await Promise.all([
+    const [couponsRes, lettersRes, honeymoonRes, eveNotesRes, quizRes, pingsRes, milestonesRes] = await Promise.all([
       pool.query('SELECT coupon_id, redeemed, redeemed_at, redeemed_by FROM coupons_state'),
-      pool.query('SELECT id, title, author, recipient, date, content, created_at FROM love_letters ORDER BY created_at DESC'),
+      pool.query('SELECT id, title, author, recipient, date, content, photo_url, created_at FROM love_letters ORDER BY created_at DESC'),
       pool.query('SELECT id, text, day, category, checked FROM honeymoon_items ORDER BY created_at ASC'),
       pool.query('SELECT slot_time, content FROM wedding_eve_notes'),
-      pool.query('SELECT user_id, fantasy_id, answer FROM quiz_answers')
+      pool.query('SELECT user_id, fantasy_id, answer FROM quiz_answers'),
+      pool.query('SELECT id, from_user, to_user, message, emoji, created_at, seen FROM love_pings ORDER BY created_at DESC LIMIT 50'),
+      pool.query('SELECT id, title, date, description, icon, photo_url, created_by, created_at FROM love_milestones ORDER BY created_at ASC')
     ]);
 
     const eveNotesMap = {};
@@ -34,10 +36,32 @@ app.get('/api/sync', async (req, res) => {
 
     res.json({
       coupons: couponsRes.rows,
-      letters: lettersRes.rows,
+      letters: lettersRes.rows.map(r => ({
+        ...r,
+        photoUrl: r.photo_url
+      })),
       honeymoon: honeymoonRes.rows,
       weddingEveNotes: eveNotesMap,
-      quizAnswers: quizRes.rows
+      quizAnswers: quizRes.rows,
+      pings: pingsRes.rows.map(p => ({
+        id: p.id,
+        fromUser: p.from_user,
+        toUser: p.to_user,
+        message: p.message,
+        emoji: p.emoji,
+        createdAt: p.created_at,
+        seen: p.seen
+      })),
+      milestones: milestonesRes.rows.map(m => ({
+        id: m.id,
+        title: m.title,
+        date: m.date,
+        description: m.description,
+        icon: m.icon,
+        photoUrl: m.photo_url,
+        createdBy: m.created_by,
+        createdAt: m.created_at
+      }))
     });
   } catch (err) {
     console.error('Error en /api/sync:', err);
@@ -85,8 +109,11 @@ app.post('/api/coupons/reactivate', async (req, res) => {
 // --- CARTAS DE AMOR ---
 app.get('/api/letters', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM love_letters ORDER BY created_at DESC');
-    res.json(result.rows);
+    const result = await pool.query('SELECT id, title, author, recipient, date, content, photo_url, created_at FROM love_letters ORDER BY created_at DESC');
+    res.json(result.rows.map(r => ({
+      ...r,
+      photoUrl: r.photo_url
+    })));
   } catch (err) {
     console.error('Error obteniendo cartas:', err);
     res.status(500).json({ error: 'Error al obtener cartas' });
@@ -94,17 +121,17 @@ app.get('/api/letters', async (req, res) => {
 });
 
 app.post('/api/letters', async (req, res) => {
-  const { id, title, author, recipient, date, content } = req.body;
+  const { id, title, author, recipient, date, content, photoUrl } = req.body;
   if (!id || !title || !content) {
     return res.status(400).json({ error: 'Faltan campos requeridos para la carta' });
   }
 
   try {
     await pool.query(
-      `INSERT INTO love_letters (id, title, author, recipient, date, content)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       ON CONFLICT (id) DO UPDATE SET title = $2, author = $3, recipient = $4, date = $5, content = $6`,
-      [id, title, author, recipient, date, content]
+      `INSERT INTO love_letters (id, title, author, recipient, date, content, photo_url)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT (id) DO UPDATE SET title = $2, author = $3, recipient = $4, date = $5, content = $6, photo_url = $7`,
+      [id, title, author, recipient, date, content, photoUrl || null]
     );
     res.json({ success: true, letter: req.body });
   } catch (err) {
@@ -209,6 +236,106 @@ app.post('/api/quiz/answer', async (req, res) => {
   } catch (err) {
     console.error('Error guardando respuesta íntima:', err);
     res.status(500).json({ error: 'Error al registrar respuesta' });
+  }
+});
+
+// --- MIMOS DE AMOR EN VIVO (LOVE PINGS) ---
+app.get('/api/pings', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, from_user, to_user, message, emoji, created_at, seen FROM love_pings ORDER BY created_at DESC LIMIT 50');
+    res.json(result.rows.map(p => ({
+      id: p.id,
+      fromUser: p.from_user,
+      toUser: p.to_user,
+      message: p.message,
+      emoji: p.emoji,
+      createdAt: p.created_at,
+      seen: p.seen
+    })));
+  } catch (err) {
+    console.error('Error obteniendo mimos:', err);
+    res.status(500).json({ error: 'Error al obtener mimos' });
+  }
+});
+
+app.post('/api/pings', async (req, res) => {
+  const { id, fromUser, toUser, message, emoji } = req.body;
+  if (!id || !fromUser || !toUser || !message) {
+    return res.status(400).json({ error: 'Datos incompletos para enviar mimo' });
+  }
+
+  try {
+    await pool.query(
+      `INSERT INTO love_pings (id, from_user, to_user, message, emoji, created_at, seen)
+       VALUES ($1, $2, $3, $4, $5, NOW(), FALSE)`,
+      [id, fromUser, toUser, message, emoji || '❤️']
+    );
+    res.json({ success: true, ping: { id, fromUser, toUser, message, emoji, seen: false } });
+  } catch (err) {
+    console.error('Error enviando mimo:', err);
+    res.status(500).json({ error: 'Error al registrar mimo' });
+  }
+});
+
+app.post('/api/pings/:id/seen', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('UPDATE love_pings SET seen = TRUE WHERE id = $1', [id]);
+    res.json({ success: true, id, seen: true });
+  } catch (err) {
+    console.error('Error marcando mimo como visto:', err);
+    res.status(500).json({ error: 'Error al actualizar mimo' });
+  }
+});
+
+// --- HITOS Y MOMENTOS DE NUESTRA HISTORIA ---
+app.get('/api/milestones', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, title, date, description, icon, photo_url, created_by, created_at FROM love_milestones ORDER BY created_at ASC');
+    res.json(result.rows.map(m => ({
+      id: m.id,
+      title: m.title,
+      date: m.date,
+      description: m.description,
+      icon: m.icon,
+      photoUrl: m.photo_url,
+      createdBy: m.created_by,
+      createdAt: m.created_at
+    })));
+  } catch (err) {
+    console.error('Error obteniendo hitos:', err);
+    res.status(500).json({ error: 'Error al obtener hitos' });
+  }
+});
+
+app.post('/api/milestones', async (req, res) => {
+  const { id, title, date, description, icon, photoUrl, createdBy } = req.body;
+  if (!id || !title || !description) {
+    return res.status(400).json({ error: 'Datos incompletos para el hito' });
+  }
+
+  try {
+    await pool.query(
+      `INSERT INTO love_milestones (id, title, date, description, icon, photo_url, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT (id) DO UPDATE SET title = $2, date = $3, description = $4, icon = $5, photo_url = $6`,
+      [id, title, date || '', description, icon || 'heart', photoUrl || null, createdBy || 'Julián & Yanet']
+    );
+    res.json({ success: true, milestone: req.body });
+  } catch (err) {
+    console.error('Error guardando hito:', err);
+    res.status(500).json({ error: 'Error al registrar hito' });
+  }
+});
+
+app.delete('/api/milestones/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM love_milestones WHERE id = $1', [id]);
+    res.json({ success: true, id });
+  } catch (err) {
+    console.error('Error eliminando hito:', err);
+    res.status(500).json({ error: 'Error al eliminar hito' });
   }
 });
 

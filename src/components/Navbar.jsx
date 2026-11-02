@@ -12,10 +12,13 @@ import {
   Volume2,
   Gift,
   RefreshCw,
-  UserCheck
+  UserCheck,
+  Send
 } from 'lucide-react';
 import { useProfile } from '../context/ProfileContext';
+import { useLovePings } from '../context/LovePingsContext';
 import ProfileModal from './ProfileModal';
+import LovePingsModal from './LovePingsModal';
 
 const JULIAN_NICKNAMES_FOR_YANET = ['mi muñeca', 'mi amor', 'mi vida', 'mi bebota', 'bebé', 'memé'];
 const YANET_NICKNAMES_FOR_JULIAN = ['mi rey', 'mi amor', 'mi bombón', 'mi cielo', 'mi vida', 'mi osito'];
@@ -28,6 +31,7 @@ export default function Navbar({
   isIntimateUnlocked 
 }) {
   const { profile, isJulian, isYanet, toggleProfile, showProfileModal, setShowProfileModal } = useProfile();
+  const { unreadCount, isPingModalOpen, setIsPingModalOpen } = useLovePings();
   const [nickIndex, setNickIndex] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -141,8 +145,27 @@ export default function Navbar({
               })}
             </nav>
 
-            {/* Right Actions: Profile Switcher & Spotify Floating Toggle & Mobile Menu */}
-            <div className="flex items-center gap-2">
+            {/* Right Actions: Mimo Button & Profile Switcher & Spotify & Mobile Menu */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              {/* Mimo Button */}
+              <button
+                onClick={() => setIsPingModalOpen(true)}
+                className={`relative flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all shadow-sm cursor-pointer border ${
+                  unreadCount > 0
+                    ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white border-pink-400 shadow-rose-950/80 animate-pulse'
+                    : 'bg-rose-950/40 text-rose-300 border-rose-800/50 hover:bg-rose-900/60 hover:border-rose-500/60'
+                }`}
+                title={`Enviar o ver mimos para ${profile.partnerName}`}
+              >
+                <Heart className={`w-3.5 h-3.5 ${unreadCount > 0 ? 'fill-white animate-bounce' : 'text-rose-400 fill-rose-400'}`} />
+                <span className="hidden sm:inline">Mimo</span>
+                {unreadCount > 0 && (
+                  <span className="flex items-center justify-center w-4 h-4 rounded-full bg-amber-400 text-rose-950 text-[10px] font-black">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
               {/* Profile Pill Button */}
               <button
                 onClick={() => setShowProfileModal(true)}
@@ -282,6 +305,12 @@ export default function Navbar({
       <ProfileModal 
         isOpen={showProfileModal} 
         onClose={() => setShowProfileModal(false)} 
+      />
+
+      {/* Love Pings / Mimos Modal */}
+      <LovePingsModal
+        isOpen={isPingModalOpen}
+        onClose={() => setIsPingModalOpen(false)}
       />
     </>
   );

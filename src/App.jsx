@@ -7,9 +7,12 @@ import GeneralCoupons from './components/GeneralCoupons';
 import WeddingEve from './components/WeddingEve';
 import IntimateSection from './components/IntimateSection';
 import SpotifyPlayer from './components/SpotifyPlayer';
-import { Heart, Sparkles, Music } from 'lucide-react';
+import IncomingPingToast from './components/IncomingPingToast';
+import { Heart } from 'lucide-react';
+import { useProfile } from './context/ProfileContext';
 
 export default function App() {
+  const { profile, isJulian } = useProfile();
   const [currentTab, setCurrentTab] = useState('home');
   const [isSpotifyOpen, setIsSpotifyOpen] = useState(false);
   const [isIntimateUnlocked, setIsIntimateUnlocked] = useState(false);
@@ -30,11 +33,28 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#0b0710] text-stone-100 relative overflow-x-hidden selection:bg-rose-500/30 selection:text-rose-200">
+    <div className={`min-h-screen flex flex-col justify-between bg-[#0b0710] text-stone-100 relative overflow-x-hidden transition-colors duration-700 ${
+      isJulian
+        ? 'selection:bg-amber-500/30 selection:text-amber-200'
+        : 'selection:bg-rose-500/30 selection:text-rose-200'
+    }`}>
       
-      {/* Global Ambient Romantic Lighting */}
-      <div className="fixed top-0 left-1/4 w-[500px] h-[500px] bg-rose-950/20 rounded-full blur-[140px] pointer-events-none -z-10" />
-      <div className="fixed bottom-0 right-1/4 w-[600px] h-[600px] bg-amber-950/15 rounded-full blur-[160px] pointer-events-none -z-10" />
+      {/* Global Ambient Romantic Lighting (Adapts dynamically to Julián 👑 vs Yanet 🌸) */}
+      <div 
+        className={`fixed top-0 left-1/4 w-[550px] h-[550px] rounded-full blur-[140px] pointer-events-none -z-10 transition-all duration-1000 ${
+          isJulian ? 'bg-purple-950/25' : 'bg-rose-950/30'
+        }`} 
+      />
+      <div 
+        className={`fixed bottom-0 right-1/4 w-[600px] h-[600px] rounded-full blur-[160px] pointer-events-none -z-10 transition-all duration-1000 ${
+          isJulian ? 'bg-amber-950/20' : 'bg-pink-950/20'
+        }`} 
+      />
+      <div 
+        className={`fixed top-1/2 left-0 w-[400px] h-[400px] rounded-full blur-[130px] pointer-events-none -z-10 transition-all duration-1000 ${
+          isJulian ? 'bg-indigo-950/15' : 'bg-fuchsia-950/15'
+        }`} 
+      />
 
       {/* Top Navbar */}
       <Navbar
@@ -72,6 +92,9 @@ export default function App() {
           />
         )}
       </main>
+
+      {/* Floating Incoming Love Ping Alert */}
+      <IncomingPingToast />
 
       {/* Floating Spotify Player Widget */}
       <SpotifyPlayer

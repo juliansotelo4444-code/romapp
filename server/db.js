@@ -37,6 +37,35 @@ export async function initDb() {
         recipient TEXT NOT NULL,
         date TEXT NOT NULL,
         content TEXT NOT NULL,
+        photo_url TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+      ALTER TABLE love_letters ADD COLUMN IF NOT EXISTS photo_url TEXT;
+    `);
+
+    // 2b. Mimos de Amor en Vivo (Love Pings entre Julián y Yanet)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS love_pings (
+        id TEXT PRIMARY KEY,
+        from_user TEXT NOT NULL,
+        to_user TEXT NOT NULL,
+        message TEXT NOT NULL,
+        emoji TEXT DEFAULT '❤️',
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        seen BOOLEAN NOT NULL DEFAULT FALSE
+      );
+    `);
+
+    // 2c. Hitos y Línea del Tiempo de Nuestra Historia
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS love_milestones (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        date TEXT NOT NULL,
+        description TEXT NOT NULL,
+        icon TEXT DEFAULT 'heart',
+        photo_url TEXT,
+        created_by TEXT,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
     `);
