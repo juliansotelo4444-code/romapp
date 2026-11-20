@@ -6,6 +6,7 @@ import HoneymoonChecklist from './components/HoneymoonChecklist';
 import GeneralCoupons from './components/GeneralCoupons';
 import WeddingEve from './components/WeddingEve';
 import IntimateSection from './components/IntimateSection';
+import CoupleGames from './components/CoupleGames';
 import SpotifyPlayer from './components/SpotifyPlayer';
 import IncomingPingToast from './components/IncomingPingToast';
 import { Heart } from 'lucide-react';
@@ -69,6 +70,8 @@ export default function App() {
             onOpenSpotify={() => setIsSpotifyOpen(true)}
           />
         )}
+
+        {currentTab === 'games' && <CoupleGames />}
 
         {currentTab === 'letters' && <LoveLetters />}
 

@@ -16,7 +16,8 @@ import {
   Maximize2,
   ChevronLeft,
   ChevronRight,
-  Heart
+  Heart,
+  Dices
 } from 'lucide-react';
 import { triggerLoveConfetti } from '../utils/confetti';
 import { useProfile } from '../context/ProfileContext';
@@ -575,6 +576,41 @@ export default function HomeHero({ onNavigate, isIntimateUnlocked }) {
 
       </section>
 
+      {/* --- SALA DE JUEGOS HERO BANNER --- */}
+      <section 
+        onClick={() => onNavigate('games')}
+        className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-purple-950/80 via-amber-950/40 to-rose-950/80 border border-amber-400/30 p-6 sm:p-7 shadow-xl hover:border-amber-400/60 transition-all duration-300 cursor-pointer group hover:scale-[1.01]"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300 shrink-0 group-hover:rotate-12 transition-transform shadow-lg">
+              <Dices className="w-7 h-7" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-400 text-stone-950">
+                  ¡Para Jugar Juntos Hoy!
+                </span>
+                <span className="text-xs text-amber-300/80 font-serif-romantic italic">
+                  4 Modos Interactivos
+                </span>
+              </div>
+              <h3 className="font-serif-romantic text-xl sm:text-2xl font-bold text-stone-100 group-hover:text-amber-200 transition-colors mt-1">
+                Sala de Juegos & Complicidad en Pareja
+              </h3>
+              <p className="text-xs text-stone-300 font-light mt-0.5">
+                ¿Quién es más probable?, la Ruleta de Retos Románticos, Trivia de su historia y Cartas de Conexión.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs font-bold text-amber-300 bg-amber-400/10 border border-amber-400/30 px-4 py-2.5 rounded-xl group-hover:bg-amber-400 group-hover:text-stone-950 transition-all shrink-0 self-start sm:self-center">
+            <span>Entrar a Jugar</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </div>
+        </div>
+      </section>
+
       {/* --- ÁLBUM DE FOTOS: NUESTROS RECUERDOS REALES --- */}
       <section className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08] pb-4">
@@ -718,6 +754,28 @@ export default function HomeHero({ onNavigate, isIntimateUnlocked }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           
+          {/* Sala de Juegos */}
+          <div
+            onClick={() => onNavigate('games')}
+            className="luxury-card luxury-card-hover rounded-2xl p-5 cursor-pointer flex flex-col justify-between group border-amber-400/30"
+          >
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-purple-950/60 border border-purple-500/40 flex items-center justify-center text-amber-300 mb-3 group-hover:scale-105 transition-transform">
+                <Dices className="w-5 h-5" />
+              </div>
+              <h3 className="font-serif-romantic text-lg font-bold text-stone-100 group-hover:text-amber-200 transition-colors">
+                Sala de Juegos en Pareja
+              </h3>
+              <p className="text-xs text-stone-400 mt-1.5 leading-relaxed font-light">
+                ¿Quién es más probable?, Ruleta de retos románticos, trivia de su amor y cartas de intimidad.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-amber-300">
+              <span>Jugar ahora</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </div>
+
           {/* Cartas de Amor */}
           <div
             onClick={() => onNavigate('letters')}

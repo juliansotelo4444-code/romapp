@@ -11,7 +11,8 @@ import {
   X,
   Volume2,
   Gift,
-  RefreshCw
+  RefreshCw,
+  Dices
 } from 'lucide-react';
 import { useProfile } from '../context/ProfileContext';
 import { useLovePings } from '../context/LovePingsContext';
@@ -45,6 +46,7 @@ export default function Navbar({
 
   const navItems = [
     { id: 'home', label: 'Inicio', icon: Heart },
+    { id: 'games', label: 'Juegos & Retos', icon: Dices },
     { id: 'letters', label: 'Cartas', icon: Mail },
     { id: 'honeymoon', label: 'Bariloche', icon: MapPin },
     { id: 'coupons', label: 'Cupones', icon: Ticket },
