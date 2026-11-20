@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, X, MessageCircle, Sparkles } from 'lucide-react';
+import { X, MessageCircle, Sparkles } from 'lucide-react';
 import { useLovePings } from '../context/LovePingsContext';
 
 export default function IncomingPingToast() {
@@ -20,11 +20,16 @@ export default function IncomingPingToast() {
         <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/20 rounded-full blur-2xl pointer-events-none" />
 
         <div className="flex items-start gap-3">
-          {/* Avatar Icon */}
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-rose-500 via-pink-500 to-amber-400 p-0.5 shadow-md shrink-0">
-            <div className="w-full h-full bg-[#180718] rounded-2xl flex items-center justify-center text-xl">
+          {/* Avatar Photo */}
+          <div className="relative w-12 h-12 rounded-2xl overflow-hidden border border-white/20 shadow-md shrink-0">
+            <img 
+              src={activeToastPing.fromUser.toLowerCase().includes('jul') ? '/photos/cena-romantica.jpg' : '/photos/parque-rosas.jpg'} 
+              alt={activeToastPing.fromUser}
+              className="w-full h-full object-cover"
+            />
+            <span className="absolute bottom-0 right-0 w-4 h-4 bg-amber-400 rounded-full border border-black flex items-center justify-center text-[9px]">
               {activeToastPing.emoji || '❤️'}
-            </div>
+            </span>
           </div>
 
           <div className="flex-1 min-w-0 pr-6">

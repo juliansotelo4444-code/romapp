@@ -423,6 +423,10 @@ export default function GeneralCoupons() {
 
       {/* Daily Reveal Banner (Cofre Diario de Noviazgo) */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#200a1d] via-[#2a0e26] to-[#150718] p-6 border border-amber-500/30 shadow-2xl">
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-20 pointer-events-none hidden md:block overflow-hidden">
+          <img src="/photos/juego-manos.jpg" alt="Cupones de amor" className="w-full h-full object-cover object-center" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2a0e26] to-transparent" />
+        </div>
         <div className="flex flex-col md:flex-row items-center justify-between gap-5 relative z-10">
           
           <div className="flex items-center gap-4 text-left">

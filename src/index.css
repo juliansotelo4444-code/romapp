@@ -2,106 +2,117 @@
 
 @layer base {
   :root {
-    --color-wine-dark: #120710;
-    --color-wine-deep: #1e0b19;
-    --color-wine-surface: #2a0f24;
-    --color-gold-warm: #d97706;
-    --color-gold-champagne: #f59e0b;
-    --color-gold-light: #fde68a;
+    --color-bg-base: #09070c;
+    --color-bg-surface: #130c18;
+    --color-bg-card: #180f1e;
+    --color-champagne: #e5c387;
+    --color-champagne-light: #f5dfb8;
+    --color-rose-muted: #c97a92;
+    --color-wine-deep: #220e20;
+    --color-parchment: #fbf7f0;
   }
 
   body {
-    @apply antialiased text-stone-100 bg-[#0b0710];
+    @apply antialiased text-stone-200 bg-[#09070c];
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.01em;
   }
   
   h1, h2, h3, .font-serif-romantic {
     font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
   }
 
-  /* Custom browser scrollbars matching the romantic palette */
+  .font-garamond {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+
+  /* Custom browser scrollbars matching the luxury wine & obsidian palette */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
   }
   ::-webkit-scrollbar-track {
-    background: #140d16;
+    background: #09070c;
   }
   ::-webkit-scrollbar-thumb {
-    background: #4a1936;
+    background: #3b1731;
     border-radius: 9999px;
-    border: 2px solid #140d16;
+    border: 2px solid #09070c;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #70244e;
+    background: #5e244f;
   }
 
   /* Accessible focus styling */
   *:focus-visible {
-    outline: 2px solid rgba(225, 29, 72, 0.65);
+    outline: 2px solid rgba(229, 195, 135, 0.7);
     outline-offset: 2px;
   }
 }
 
-/* Custom romantic glow & glass styles */
-.glass-panel {
-  background: rgba(20, 11, 23, 0.92);
+/* Luxury Editorial Glass Surfaces */
+.luxury-glass {
+  background: rgba(18, 12, 23, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(159, 18, 57, 0.35);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.6);
 }
 
-.glass-dark {
-  background: rgba(24, 11, 20, 0.88);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  box-shadow: 0 12px 35px -8px rgba(0, 0, 0, 0.7);
+.luxury-card {
+  background: linear-gradient(145deg, rgba(26, 16, 32, 0.9) 0%, rgba(16, 10, 21, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.5);
 }
 
-.gold-gradient-text {
-  background: linear-gradient(135deg, #d97706 0%, #fbbf24 50%, #b45309 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.luxury-card-hover {
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.luxury-card-hover:hover {
+  border-color: rgba(229, 195, 135, 0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(229, 195, 135, 0.08);
 }
 
-.rose-gradient-text {
-  background: linear-gradient(135deg, #e11d48 0%, #be185d 50%, #881337 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* Polaroid Photo Styling */
+.polaroid-frame {
+  background-color: #faf8f5;
+  padding: 10px 10px 30px 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.2);
+  border: 1px solid #e7e2d8;
+  position: relative;
 }
 
+.polaroid-tape {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-1deg);
+  width: 90px;
+  height: 24px;
+  background-color: rgba(245, 235, 205, 0.75);
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(215, 200, 160, 0.5);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+/* Authentic Parchment Background for Love Letters */
 .parchment-bg {
-  background-color: #fcf9f2;
-  background-image: radial-gradient(#eddcc3 1px, transparent 0);
-  background-size: 24px 24px;
+  background-color: #fbf7ef;
+  background-image: 
+    radial-gradient(#e6d9c3 0.8px, transparent 0.8px),
+    linear-gradient(to bottom, rgba(245, 235, 215, 0.3), rgba(251, 247, 239, 0.8));
+  background-size: 20px 20px, 100% 100%;
 }
 
-/* Exponential ease floating animations (smooth, no tacky bounce) */
-@keyframes floatSmooth {
-  0%, 100% { 
-    transform: translateY(0px); 
-  }
-  50% { 
-    transform: translateY(-5px); 
-  }
+/* Subtle animations */
+@keyframes softPulse {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
 }
 
-.float-smooth {
-  animation: floatSmooth 4.5s cubic-bezier(0.37, 0, 0.63, 1) infinite;
-}
-
-@keyframes pulseWarmGlow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(244, 63, 94, 0.25), 0 0 40px rgba(217, 119, 6, 0.15);
-  }
-  50% {
-    box-shadow: 0 0 35px rgba(244, 63, 94, 0.4), 0 0 60px rgba(217, 119, 6, 0.3);
-  }
-}
-
-.glow-romantic {
-  animation: pulseWarmGlow 5s infinite ease-in-out;
+.soft-pulse {
+  animation: softPulse 4s ease-in-out infinite;
 }

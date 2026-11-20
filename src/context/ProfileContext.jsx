@@ -9,7 +9,9 @@ export const PROFILES = {
     role: 'El Novio / Esposo',
     gender: 'he',
     emoji: '👑',
-    avatarBg: 'from-amber-500 to-purple-600',
+    photo: '/photos/cena-romantica.jpg',
+    couplePhoto: '/photos/beso-cafeteria.jpg',
+    avatarBg: 'from-amber-600 to-amber-900',
     accentColor: 'amber',
     partnerName: 'Yanet',
     partnerNickname: 'mi muñeca',
@@ -20,7 +22,7 @@ export const PROFILES = {
       'Bienvenido, campeón. Tu compañera de vida te ama infinito.'
     ],
     signature: 'Siempre tuyo, Julián',
-    badgeText: 'Perfil: Julián 👑'
+    badgeText: 'Sesión: Julián'
   },
   yanet: {
     id: 'yanet',
@@ -28,7 +30,9 @@ export const PROFILES = {
     role: 'La Novia / Esposa',
     gender: 'she',
     emoji: '🌸',
-    avatarBg: 'from-pink-500 to-rose-600',
+    photo: '/photos/parque-rosas.jpg',
+    couplePhoto: '/photos/beso-cafeteria.jpg',
+    avatarBg: 'from-rose-600 to-rose-900',
     accentColor: 'rose',
     partnerName: 'Julián',
     partnerNickname: 'mi rey',
@@ -39,7 +43,7 @@ export const PROFILES = {
       'Hola mi vida, sos la luz de cada uno de sus días.'
     ],
     signature: 'Siempre tuya, Yanet',
-    badgeText: 'Perfil: Yanet 🌸'
+    badgeText: 'Sesión: Yanet'
   }
 };
 

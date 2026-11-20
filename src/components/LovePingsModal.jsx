@@ -67,27 +67,29 @@ export default function LovePingsModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
       <div 
-        className="relative w-full max-w-lg rounded-3xl bg-gradient-to-b from-[#180a1c] via-[#120715] to-[#0c040d] border border-rose-900/50 shadow-2xl overflow-hidden text-stone-100 flex flex-col max-h-[90vh]"
+        className="relative w-full max-w-lg rounded-3xl bg-[#110a16] border border-white/10 shadow-2xl overflow-hidden text-stone-100 flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Glow Effects */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        {/* Subtle ambient glow */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Header */}
-        <div className="relative z-10 px-6 py-5 border-b border-rose-950/60 flex items-center justify-between bg-black/20">
+        <div className="relative z-10 px-6 py-5 border-b border-white/10 flex items-center justify-between bg-black/20">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 p-0.5 shadow-md flex items-center justify-center">
-              <div className="w-full h-full bg-[#160817] rounded-2xl flex items-center justify-center">
-                <Heart className="w-5 h-5 text-rose-400 fill-rose-400 animate-pulse" />
-              </div>
+            <div className="w-11 h-11 rounded-2xl overflow-hidden border border-white/20 shadow-md shrink-0">
+              <img 
+                src={isJulian ? '/photos/parque-rosas.jpg' : '/photos/cena-romantica.jpg'} 
+                alt={partnerName} 
+                className="w-full h-full object-cover"
+              />
             </div>
             <div>
-              <h3 className="font-serif-romantic text-xl font-bold text-white flex items-center gap-2">
+              <h3 className="font-serif-romantic text-xl font-bold text-stone-100 flex items-center gap-2">
                 Mimos de Amor en Vivo
-                <span className="text-xs px-2 py-0.5 rounded-full bg-rose-950 text-rose-300 font-sans font-normal border border-rose-800/60">
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/[0.05] text-amber-200/90 font-sans font-medium border border-white/10">
                   Para {partnerName}
                 </span>
               </h3>

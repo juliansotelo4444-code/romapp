@@ -33,26 +33,21 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen flex flex-col justify-between bg-[#0b0710] text-stone-100 relative overflow-x-hidden transition-colors duration-700 ${
+    <div className={`min-h-screen flex flex-col justify-between bg-[#08060a] text-stone-200 relative overflow-x-hidden transition-colors duration-700 ${
       isJulian
-        ? 'selection:bg-amber-500/30 selection:text-amber-200'
-        : 'selection:bg-rose-500/30 selection:text-rose-200'
+        ? 'selection:bg-amber-400/25 selection:text-amber-200'
+        : 'selection:bg-rose-500/25 selection:text-rose-200'
     }`}>
       
-      {/* Global Ambient Romantic Lighting (Adapts dynamically to Julián 👑 vs Yanet 🌸) */}
+      {/* Global Ambient Lighting (Adapts to Julián vs Yanet) */}
       <div 
-        className={`fixed top-0 left-1/4 w-[550px] h-[550px] rounded-full blur-[140px] pointer-events-none -z-10 transition-all duration-1000 ${
-          isJulian ? 'bg-purple-950/25' : 'bg-rose-950/30'
+        className={`fixed top-0 left-1/4 w-[500px] h-[500px] rounded-full blur-[140px] pointer-events-none -z-10 transition-all duration-1000 ${
+          isJulian ? 'bg-amber-500/10' : 'bg-rose-500/10'
         }`} 
       />
       <div 
-        className={`fixed bottom-0 right-1/4 w-[600px] h-[600px] rounded-full blur-[160px] pointer-events-none -z-10 transition-all duration-1000 ${
-          isJulian ? 'bg-amber-950/20' : 'bg-pink-950/20'
-        }`} 
-      />
-      <div 
-        className={`fixed top-1/2 left-0 w-[400px] h-[400px] rounded-full blur-[130px] pointer-events-none -z-10 transition-all duration-1000 ${
-          isJulian ? 'bg-indigo-950/15' : 'bg-fuchsia-950/15'
+        className={`fixed bottom-0 right-1/4 w-[500px] h-[500px] rounded-full blur-[160px] pointer-events-none -z-10 transition-all duration-1000 ${
+          isJulian ? 'bg-amber-600/5' : 'bg-pink-600/5'
         }`} 
       />
 
@@ -103,18 +98,18 @@ export default function App() {
       />
 
       {/* Footer */}
-      <footer className="border-t border-rose-950/50 bg-[#070309]/90 text-stone-400 py-6 text-center text-xs relative z-10">
+      <footer className="border-t border-white/[0.08] bg-[#070508]/95 text-stone-400 py-6 text-center text-xs relative z-10">
         <div className="max-w-7xl mx-auto px-4 space-y-2">
           <div className="flex items-center justify-center gap-2 font-medium text-stone-300">
-            <span className="text-stone-200 font-semibold">Julián</span>
+            <span className="text-stone-200 font-semibold font-serif-romantic">Julián</span>
             <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline-block animate-pulse" />
-            <span className="text-stone-200 font-semibold">Yanet</span>
+            <span className="text-stone-200 font-semibold font-serif-romantic">Yanet</span>
             <span className="text-stone-600">•</span>
-            <span className="text-amber-300 font-serif-romantic font-bold">
+            <span className="text-amber-300 font-serif-romantic font-semibold">
               8 & 9 de Octubre
             </span>
             <span className="text-stone-600">•</span>
-            <span className="text-rose-300/90">Luna de Miel en Bariloche</span>
+            <span className="text-stone-300">Luna de Miel en Bariloche</span>
           </div>
           <p className="text-[11px] text-stone-500 font-light">
             Hecho con todo el amor, la complicidad y la música de Morat, Tan Biónica & Airbag.

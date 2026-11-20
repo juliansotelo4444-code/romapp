@@ -651,22 +651,30 @@ export default function LoveLetters() {
                   {/* Decorative envelope fold top */}
                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-rose-900/20 to-transparent rounded-bl-full pointer-events-none" />
 
-                  <div>
-                    <div className="flex items-center justify-between text-xs text-stone-400 mb-2">
-                      <span className="flex items-center gap-1 font-medium text-rose-300 bg-rose-950/60 px-2.5 py-0.5 rounded-full border border-rose-800/40 text-[11px]">
-                        <Feather className="w-3 h-3 text-rose-400" />
-                        De {letter.author} para {letter.recipient}
-                      </span>
-                      <span>{letter.date}</span>
+                  <div className="flex gap-3 items-start">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between text-xs text-stone-400 mb-2">
+                        <span className="flex items-center gap-1 font-medium text-amber-200/90 bg-white/[0.05] px-2.5 py-0.5 rounded-full border border-white/10 text-[11px]">
+                          <Feather className="w-3 h-3 text-amber-300" />
+                          De {letter.author} para {letter.recipient}
+                        </span>
+                        <span>{letter.date}</span>
+                      </div>
+
+                      <h3 className="font-serif-romantic text-lg font-bold text-stone-100 group-hover:text-amber-200 transition-colors line-clamp-1">
+                        {letter.title}
+                      </h3>
+
+                      <p className="text-xs text-stone-400 mt-2 line-clamp-2 leading-relaxed font-serif-romantic italic">
+                        "{letter.content.slice(0, 140)}..."
+                      </p>
                     </div>
 
-                    <h3 className="font-serif-romantic text-lg font-bold text-stone-100 group-hover:text-rose-300 transition-colors line-clamp-1">
-                      {letter.title}
-                    </h3>
-
-                    <p className="text-xs text-stone-400 mt-2 line-clamp-3 leading-relaxed font-serif-romantic italic">
-                      "{letter.content.slice(0, 160)}..."
-                    </p>
+                    {letter.photoUrl && (
+                      <div className="w-16 h-20 bg-stone-100 p-1 pb-3 rounded-xs border border-stone-300 shadow-sm shrink-0 rotate-2 group-hover:rotate-0 transition-transform overflow-hidden">
+                        <img src={letter.photoUrl} alt="Foto adjunta" className="w-full h-full object-cover" />
+                      </div>
+                    )}
                   </div>
 
                   <div className="mt-4 pt-3 border-t border-rose-950/60 flex items-center justify-between text-xs">

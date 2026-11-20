@@ -170,9 +170,12 @@ export default function HoneymoonChecklist() {
   return (
     <div className="space-y-8 py-6 max-w-4xl mx-auto">
       
-      {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-950 via-teal-950 to-stone-900 text-white p-6 sm:p-8 shadow-xl border border-emerald-500/20">
-        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Header Banner with Real Autumn / Mountain Memory */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#0f241c] via-[#0a1813] to-[#0b080f] text-white p-6 sm:p-8 shadow-2xl border border-emerald-500/20">
+        <div className="absolute right-0 top-0 bottom-0 w-1/2 opacity-25 pointer-events-none hidden md:block overflow-hidden">
+          <img src="/photos/beso-otono.jpg" alt="Bariloche recuerdos" className="w-full h-full object-cover object-top" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0a1813] via-[#0a1813]/60 to-transparent" />
+        </div>
         
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-xl">
