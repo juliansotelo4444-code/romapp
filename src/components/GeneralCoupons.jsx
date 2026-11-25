@@ -395,7 +395,7 @@ export default function GeneralCoupons() {
             </h2>
           </div>
           <p className="text-xs text-stone-400 mt-1">
-            Etapa de Noviazgo activa con desbloqueo progresivo diario. Los vales de convivencia permanecen sellados hasta el matrimonio.
+            Etapa de Noviazgo activa con desbloqueo progresivo diario. Los vales de convivencia permanecen sellados hasta la boda.
           </p>
         </div>
 

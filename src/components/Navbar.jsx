@@ -90,7 +90,7 @@ export default function Navbar({
                     Julián <span className="text-amber-300/90 font-serif font-light">&</span> Yanet
                   </span>
                   <span className="hidden sm:inline-block text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-full bg-white/[0.05] text-amber-200/90 font-medium border border-white/10">
-                    Boda & Luna de Miel
+                    Rumbo a Nuestra Boda
                   </span>
                 </div>
                 

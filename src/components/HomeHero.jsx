@@ -28,7 +28,7 @@ const REAL_PHOTO_GALLERY = [
     id: 'gal-1',
     src: '/photos/propuesta-rodilla.jpg',
     title: 'La Gran Propuesta',
-    subtitle: 'El día en que Julián se arrodilló en el rosedal',
+    subtitle: 'El momento en que Julián se arrodilló con el anillo',
     tag: 'El Gran "Sí"'
   },
   {
@@ -56,7 +56,7 @@ const REAL_PHOTO_GALLERY = [
     id: 'gal-5',
     src: '/photos/viaje-auto.jpg',
     title: 'Cantando en la Ruta',
-    subtitle: 'Morat, Tan Biónica y Airbag a los gritos en el auto',
+    subtitle: 'Nuestras canciones favoritas a los gritos en el auto',
     tag: 'Nuestras Canciones'
   },
   {
@@ -76,9 +76,9 @@ const REAL_PHOTO_GALLERY = [
   {
     id: 'gal-8',
     src: '/photos/parque-rosas.jpg',
-    title: 'Tarde en el Rosedal',
-    subtitle: 'Entre flores rosas y árboles que son testigos de nuestro amor',
-    tag: 'Buenos Aires'
+    title: 'Paseo en el Parque',
+    subtitle: 'Caminando juntos bajo las flores y los árboles',
+    tag: 'Nuestro Amor'
   },
   {
     id: 'gal-9',
@@ -145,35 +145,11 @@ const DEFAULT_MILESTONES = [
   },
   {
     id: 'm5',
-    title: 'La Gran Propuesta (El "¡Sí, acepto!")',
-    date: 'Momento Mágico',
-    description: 'Julián sobre una rodilla con el anillo en la mano, Yanet emocionada hasta las lágrimas y un "para siempre" sellado en el corazón.',
+    title: 'La Gran Propuesta de Casamiento',
+    date: 'El "¡Sí, acepto!"',
+    description: 'Julián sobre una rodilla con el anillo en la mano, Yanet emocionada y un "para siempre" sellado en el corazón.',
     icon: '💍',
     photoUrl: '/photos/propuesta-rodilla.jpg'
-  },
-  {
-    id: 'm6',
-    title: 'Casamiento Civil',
-    date: '8 de Octubre',
-    description: 'La firma ante la ley y la vida que sella nuestro compromiso como esposos. ¡Oficialmente marido y mujer!',
-    icon: '🏛️',
-    photoUrl: '/photos/propuesta-anillo-puerto.jpg'
-  },
-  {
-    id: 'm7',
-    title: 'La Gran Fiesta de Boda',
-    date: '9 de Octubre',
-    description: 'Bailar hasta el amanecer, brindar con la gente que amamos y celebrar la unión más linda de todas.',
-    icon: '🥂',
-    photoUrl: '/photos/cena-romantica.jpg'
-  },
-  {
-    id: 'm8',
-    title: 'Luna de Miel en Bariloche',
-    date: '11 de Octubre',
-    description: '10 días en el sur argentino: lago Nahuel Huapi, montañas, paseos en catamarán, cabaña con chimenea, chocolates y amor sin límites.',
-    icon: '🏔️',
-    photoUrl: '/photos/beso-otono.jpg'
   }
 ];
 
@@ -193,12 +169,16 @@ export default function HomeHero({ onNavigate, isIntimateUnlocked }) {
   const [lightboxPhoto, setLightboxPhoto] = useState(null);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
 
-  // Milestones State
+  // Milestones State: only real past moments lived together (not future wedding events)
   const [milestones, setMilestones] = useState(() => {
     const saved = localStorage.getItem('romapp_milestones');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Exclude m6, m7, m8 which falsely treated future wedding events as past memories
+        const cleaned = parsed.filter(m => m.id !== 'm6' && m.id !== 'm7' && m.id !== 'm8');
+        localStorage.setItem('romapp_milestones', JSON.stringify(cleaned));
+        return cleaned;
       } catch {
         return DEFAULT_MILESTONES;
       }
@@ -569,7 +549,7 @@ export default function HomeHero({ onNavigate, isIntimateUnlocked }) {
         </div>
 
         <div className="text-center text-xs text-stone-400 italic font-serif-romantic">
-          {targetEvent === 'civil' && '"El momento de estampar la firma y ser legalmente marido y mujer."'}
+          {targetEvent === 'civil' && '"El momento soñado de dar el sí ante la ley y comenzar esta nueva etapa."'}
           {targetEvent === 'party' && '"Celebrar con toda la gente que amamos, bailar hasta el amanecer."'}
           {targetEvent === 'bariloche' && '"10 días en la Patagonia: montañas, chimenea, lago Nahuel Huapi y nosotros."'}
         </div>

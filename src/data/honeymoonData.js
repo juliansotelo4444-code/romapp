@@ -13,7 +13,7 @@ export const INITIAL_HONEYMOON_ITEMS = [
   { id: 'hm-d1-1', day: 'Día 1', category: 'Itinerario', text: 'Llegada a Bariloche y retiro del auto de alquiler', checked: false },
   { id: 'hm-d1-2', day: 'Día 1', category: 'Itinerario', text: 'Check-in en nuestra cabaña soñada con vista a las montañas', checked: false },
   { id: 'hm-d1-3', day: 'Día 1', category: 'Itinerario', text: 'Compras de leña, provisiones ricas y buen vino patagónico', checked: false },
-  { id: 'hm-d1-4', day: 'Día 1', category: 'Itinerario', text: 'Encender la chimenea y primer brindis de recién casados', checked: false },
+  { id: 'hm-d1-4', day: 'Día 1', category: 'Itinerario', text: 'Encender la chimenea y disfrutar nuestro primer brindis en el sur', checked: false },
 
   // Día 2
   { id: 'hm-d2-1', day: 'Día 2', category: 'Itinerario', text: 'Paseo matutino por el Centro Cívico y costa del lago Nahuel Huapi', checked: false },
@@ -63,5 +63,5 @@ export const INITIAL_HONEYMOON_ITEMS = [
   // Día 10
   { id: 'hm-d10-1', day: 'Día 10', category: 'Itinerario', text: 'Último café en la terraza de la cabaña mirando los pinos', checked: false },
   { id: 'hm-d10-2', day: 'Día 10', category: 'Itinerario', text: 'Cerrar valijas con el corazón repleto de memorias imborrables', checked: false },
-  { id: 'hm-d10-3', day: 'Día 10', category: 'Itinerario', text: 'Regreso a casa listos para empezar formalmente nuestra vida de esposos', checked: false }
+  { id: 'hm-d10-3', day: 'Día 10', category: 'Itinerario', text: 'Regreso a casa listos para comenzar esta nueva etapa juntos', checked: false }
 ];

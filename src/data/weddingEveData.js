@@ -114,8 +114,8 @@ export const NIGHT_SCHEDULE_PROMPTS = [
   },
   {
     time: '08:30 AM',
-    title: 'El Primer Despertar como Marido y Mujer',
-    description: 'La luz entrando por la ventana, los anillos brillando en la mesita o en los dedos, y el primer beso con el nuevo título.',
+    title: 'El Primer Despertar Tras el Gran Día',
+    description: 'La luz entrando por la ventana, los anillos brillando en la mesita o en los dedos, y el primer beso de esta nueva etapa.',
     authorPrompt: '¿Qué le vas a susurrar al oído al verle abrir los ojos?'
   }
 ];
@@ -124,7 +124,7 @@ export const INSOMNIA_ROULETTE_PROMPTS = [
   'Graba un audio susurrado de 15 segundos confesando qué es lo que más te calienta de su cuerpo en este instante.',
   'Envía una foto de la prenda de ropa que te vas a poner o quitar primero mañana.',
   'Escribe el recuerdo exacto de la primera vez que supiste que te querías casar con ella/él.',
-  'Describe con pelos y señales el beso que le vas a dar apenas digan "los declaro marido y mujer".',
+  'Describe con pelos y señales el beso que le vas a dar apenas termine la ceremonia de boda.',
   'Tómate una foto sonriendo con el anillo o algo del casamiento y dile por qué es el amor de tu vida.',
   'Susurra en un mensaje de voz la estrofa de Morat o Tan Biónica que define lo que sentís en esta víspera.',
   'Confiesa una fantasía que quieras cumplir sí o sí en la cabaña de Bariloche durante la luna de miel.'

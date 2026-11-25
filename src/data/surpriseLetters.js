@@ -4,94 +4,92 @@ export const SURPRISE_LETTERS = [
     title: 'Días y Flores para Toda la Vida',
     author: 'Julián',
     recipient: 'Yanet',
-    date: '8 de Octubre',
-    theme: 'Morat & Civil',
+    date: 'Para nuestro Civil (8 de Octubre)',
+    theme: 'Morat & Amor',
     photoUrl: '/photos/propuesta-rodilla.jpg',
     content: `Mi muñeca, mi amor...
-No hay manera de poner en palabras lo que siente mi pecho cuando pienso que hoy dejamos de ser dos personas caminando juntas para convertirnos en un solo camino. 
+No hay manera de poner en palabras lo que siente mi pecho cuando pienso en cada paso que dimos juntos y en el futuro hermoso que estamos construyendo. 
 
-Como dice la canción que tantas veces cantamos en el auto: *"Si tú me pides que te cante una canción, te canto mil... si me regalas de tus días y tus flores"*. Tú me diste luz en los días grises y me enseñaste a amar con una calma y una pasión que nunca antes conocí.
+Como dice la canción que tantas veces cantamos en el auto: *"Si tú me pides que te cante una canción, te canto mil... si me regalas de tus días y tus flores"*. Me diste luz en los días difíciles y me enseñaste a amar con una calma y una pasión únicas.
 
-Tienes una belleza infinita, una mirada profunda y una ternura que desarma cualquier miedo. Te prometo que nunca te va a faltar una mano que te sostenga, un abrazo que te resguarde del frío de la cordillera y un hombre que te admire en cada paso. Hoy te elijo ante la ley y ante el universo. Y mañana en la fiesta, y pasado en Bariloche, y cada día que nos quede por vivir.
+Te prometo que nunca te va a faltar una mano que te sostenga, un abrazo que te abrigue y un compañero que te admire en cada paso. Te elijo hoy como mi novia y prometida, y te elegiré cada día cuando demos el "sí".
 
-Te amo con toda mi alma, mi bebota hermosa.`
+Te amo con toda mi alma, mi amor.`
   },
   {
     id: 'let-2',
-    title: 'La Melodía de Dios en Buenos Aires',
+    title: 'Soñando con Nuestro Gran Día',
     author: 'Julián',
     recipient: 'Yanet',
-    date: '9 de Octubre',
-    theme: 'Tan Biónica & Fiesta de Bodas',
+    date: 'Camino a la Boda (9 de Octubre)',
+    theme: 'Tan Biónica & Sueños',
     photoUrl: '/photos/cena-romantica.jpg',
-    content: `Mi vida, mi muñeca, mi memé...
-Míranos hoy. En medio de las luces, de la música, de los abrazos de toda la gente que nos quiere, pero con mis ojos fijos únicamente en los tuyos. 
+    content: `Mi vida, mi muñeca, mi amor...
+Miro todo lo que preparamos con tanta ilusión y solo puedo sonreír. Llegaste a mi vida a ponerle música y alegría a cada momento.
 
-Sonaba Tan Biónica y yo solo pensaba en cuántas noches mágicas imaginé este instante. Llegaste a mi vida a ponerle música a todo lo que estaba en silencio. Eres la mujer de mis sueños, la que me llena de fuego, la que me inspira a comerme el mundo y la dueña absoluta de mi corazón.
+Imagino el instante en que nos miremos a los ojos camino al altar, rodeados de la gente que nos quiere, sabiendo que empieza la etapa más linda de todas. Sos la mujer de mis sueños, mi compañera fiel y la dueña de mi corazón.
 
-Hoy celebramos esta fiesta que soñamos tanto, pero lo que más deseo no es solo el vals ni el brindis: es subirnos al avión rumbo a Bariloche, refugiarnos en esa cabaña frente a las montañas, encender el fuego y saber que ya somos esposos para siempre. 
-
-Gracias por elegirme, mi amor. Te entrego mi vida entera sin condiciones.`
+Gracias por elegirme para caminar a tu lado. Te amo con todo mi ser.`
   },
   {
     id: 'let-3',
-    title: 'Sin Miedo al Destino',
+    title: 'Nuestra Futura Aventura en el Sur',
     author: 'Julián',
     recipient: 'Yanet',
-    date: 'Bariloche, Noche de Chimenea',
-    theme: 'Airbag & Luna de Miel',
+    date: 'Soñando Bariloche (11 de Octubre)',
+    theme: 'Airbag & Naturaleza',
     photoUrl: '/photos/beso-otono.jpg',
-    content: `Memé de mi vida, mi muñeca...
-Afuera la Patagonia congela el lago Nahuel Huapi, el viento silba entre los pinos y la nieve corona los cerros. Pero acá adentro, sobre la alfombra frente al fuego, con los leños crepitando y una copa de vino entre las manos, no existe el frío.
+    content: `Mi muñeca, mi compañera...
+Qué ganas tengo de que llegue ese viaje a Bariloche. Caminar juntos frente al lago, abrigarnos bien, tomar un café caliente y disfrutar de la tranquilidad de estar los dos solos.
 
-Hay canciones de Airbag que hablan de tempestades y de corazones que no se rinden. Nosotros cruzamos todas las dudas, rompimos cualquier prejuicio y construimos este refugio indestructible que hoy llamamos nuestro matrimonio. 
+Crecimos muchísimo como pareja, aprendimos el uno del otro y demostramos que cuando estamos unidos, no hay obstáculo que nos detenga.
 
-Verte dormir a mi lado con el reflejo de las brasas en tu piel es el mayor regalo que la vida me pudo dar. Bariloche es testigo de que este amor no es una casualidad: eres mi mayor acierto y mi felicidad eterna.`
+Verte sonreír es mi mayor alegría. Gracias por compartir tu vida conmigo.`
   },
   {
     id: 'let-4',
     title: 'Me Mata Tu Sonrisa',
     author: 'Julián',
     recipient: 'Yanet',
-    date: 'En Cualquier Momento de Nuestra Historia',
+    date: 'Nuestros Días de Novios',
     theme: 'Morat & Confesión',
     photoUrl: '/photos/selfie-amor.jpg',
     content: `Mi muñeca hermosa...
-Me mata cómo me miras de reojo cuando crees que no me doy cuenta. Me mata cómo se te iluminan los ojos cuando hablamos de nuestro futuro, de la casa, de los viajes, de nuestros proyectos. 
+Me encanta cómo me miras cuando nos reímos juntos o cuando hablamos de nuestros planes y proyectos. 
 
 *"Me mata que me mires y que no me digas nada, me mata la sospecha de saber que tú me amas..."*
-No hace falta que digamos nada cuando nos abrazamos en el sillón después de un día agotador. Con solo apoyar tu cabeza en mi pecho, todo cobra sentido. Gracias por ser mi compañera, mi cómplice, mi fuego y mi paz. 
+No hace falta decir demasiado cuando nos abrazamos en el sillón después de un día largo. Con solo tenerte cerca, todo se acomoda. Gracias por ser mi compañera, mi paz y mi refugio.
 
 Sos el amor de mi vida, Yanet.`
   },
   {
     id: 'let-5',
-    title: 'El Día Que Me Dijiste Para Siempre',
+    title: 'El Día Que Empezó el Para Siempre',
     author: 'Yanet',
     recipient: 'Julián',
     date: 'Nuestra Propuesta',
-    theme: 'Amor Eterno',
+    theme: 'Amor & Promesa',
     photoUrl: '/photos/propuesta-felicidad.jpg',
     content: `Mi rey, mi compañero de vida...
-Todavía cierro los ojos y te veo ahí, arrodillado frente a mí con esa cajita y esa mirada llena de ternura y nervios. Se me paró el corazón. 
+Todavía me acuerdo de los nervios, de tu mirada llena de ternura y del momento tan lindo en que me pediste casamiento. Se me llenó el pecho de emoción.
 
-Siempre supe que eras vos. Desde las primeras risas, desde la primera vez que me hiciste sentir la mujer más cuidada y especial de este mundo. Me emociona tanto ver todo lo que crecimos juntos, cómo nos apoyamos en cada proyecto, cómo trabajamos hombro a hombro y cómo soñamos con nuestra familia.
+Siempre supe que eras vos. Me hacés sentir querida, cuidada y acompañada. Me encanta todo lo que construimos día a día, con esfuerzo y amor del bueno.
 
-Sos mi refugio seguro, mi bombón, mi orgullo. Decirte que sí fue la decisión más fácil y hermosa de toda mi vida. Te amo con cada pedacito de mi corazón.`
+Sos mi persona favorita, mi orgullo y mi gran amor. Decirte que sí fue de lo más hermoso que me pasó. Te amo con todo mi corazón.`
   },
   {
     id: 'let-6',
-    title: 'Nuestros Desayunos, Risas y la Rutina Más Linda',
+    title: 'Nuestros Desayunos y Risas Cotidianas',
     author: 'Yanet',
     recipient: 'Julián',
-    date: 'Cualquier Mañana Juntos',
-    theme: 'Complicidad Diaria',
+    date: 'Nuestra Rutina',
+    theme: 'Complicidad',
     photoUrl: '/photos/desayuno-juntos.jpg',
     content: `Mi amor...
-Amo nuestras mañanas. Compartir un jugo, unas tostadas, mirarnos medio dormidos y empezar el día sabiendo que estamos juntos. La felicidad no está solo en los grandes momentos, sino en estos detalles simples que construyen nuestra vida.
+Amo nuestras mañanas. Compartir algo rico, charlar de cualquier cosa, reírnos de tonterías y empezar el día juntos. 
 
-Gracias por hacerme reír todos los días, por tus abrazos de oso cuando más los necesito y por ser el hombre noble, trabajador y cariñoso que sos.
+Gracias por hacerme reír siempre, por tus abrazos sinceros y por ser el hombre trabajador y cariñoso que sos todos los días. 
 
-No veo la hora de que seamos marido y mujer todos los días del año. Te amo infinito, Julián.`
+Tengo toda la ilusión de seguir compartiendo la vida con vos. Te amo infinito, Julián.`
   }
 ];

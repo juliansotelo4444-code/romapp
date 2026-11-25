@@ -94,28 +94,28 @@ export const GENERAL_COUPONS = [
     "id": "gen-14",
     "category": "Especiales Boda y Bariloche",
     "title": "Parada Fotográfica Exclusiva en Circuito Chico",
-    "description": "Sesión de fotos espontáneas en los miradores del Nahuel Huapi para inmortalizar el amor de recién casados.",
+    "description": "Sesión de fotos espontáneas en los miradores del Nahuel Huapi para inmortalizar nuestro viaje soñado.",
     "icon": "Camera"
   },
   {
     "id": "gen-15",
     "category": "Especiales Boda y Bariloche",
-    "title": "Cata Libre en Mamuschka o Rapa Nui",
-    "description": "Elección ilimitada de bombones, franuis y ramas de chocolate para degustar en la intimidad de la cabaña.",
+    "title": "Cata Libre de Chocolates Artesanales",
+    "description": "Elección de bombones y ramas de chocolate para degustar en la intimidad de la cabaña.",
     "icon": "Gift"
   },
   {
     "id": "gen-16",
     "category": "Especiales Boda y Bariloche",
-    "title": "Pausa Nupcial Antiestrés (Pre-Boda)",
-    "description": "Respiro total en la semana previa: prohibido hablar de logística de boda durante 4 horas completas.",
+    "title": "Pausa Antiestrés (Pre-Boda)",
+    "description": "Respiro total: prohibido hablar de logística o preparativos durante 4 horas completas.",
     "icon": "ShieldCheck"
   },
   {
     "id": "gen-17",
     "category": "Especiales Boda y Bariloche",
-    "title": "Baile Lento Privado de Esposos",
-    "description": "Bailar abrazados en el living o en la cabaña, descalzos, una canción suave que selle nuestro amor.",
+    "title": "Baile Lento Abrazados en la Intimidad",
+    "description": "Bailar abrazados en el living o en la cabaña, descalzos, con una canción suave que sea solo nuestra.",
     "icon": "Heart"
   },
   {

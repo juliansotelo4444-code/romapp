@@ -17,7 +17,8 @@ import {
   Camera,
   Image as ImageIcon,
   X,
-  Maximize2
+  Maximize2,
+  RotateCcw
 } from 'lucide-react';
 import { SURPRISE_LETTERS } from '../data/surpriseLetters';
 import { triggerLoveConfetti } from '../utils/confetti';
@@ -62,13 +63,22 @@ export default function LoveLetters() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Keep custom letters, preserve original author or fallback to Julian
-        const customOnly = parsed.filter(l => l.id.toString().startsWith('custom-')).map(l => ({
-          ...l,
-          author: l.author || 'Julián',
-          recipient: l.recipient || (l.author === 'Yanet' ? 'Julián' : 'Yanet')
-        }));
-        localList = [...SURPRISE_LETTERS, ...customOnly];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Cleanly replace any outdated pre-made letters that had past-tense marriage text
+          localList = parsed.map((item) => {
+            if (
+              item.content && (
+                item.content.includes('ya somos esposos para siempre') ||
+                item.content.includes('llamamos nuestro matrimonio') ||
+                item.content.includes('Hoy te elijo ante la ley y ante el universo. Y mañana en la fiesta')
+              )
+            ) {
+              const fresh = SURPRISE_LETTERS.find((s) => s.id === item.id);
+              return fresh ? { ...fresh, photoUrl: item.photoUrl || fresh.photoUrl } : item;
+            }
+            return item;
+          });
+        }
       } catch {
         localList = SURPRISE_LETTERS;
       }
@@ -78,26 +88,31 @@ export default function LoveLetters() {
 
     // Cloud sync from Neon
     fetchSyncData().then((syncData) => {
-      if (syncData && Array.isArray(syncData.letters)) {
+      if (syncData && Array.isArray(syncData.letters) && syncData.letters.length > 0) {
         setLetters((prev) => {
-          const ids = new Set(prev.map(l => l.id));
-          const merged = [...prev];
+          const map = new Map(prev.map(l => [l.id, l]));
           syncData.letters.forEach((rem) => {
-            if (!ids.has(rem.id)) {
-              merged.push({ 
+            if (!map.has(rem.id)) {
+              map.set(rem.id, { 
                 ...rem, 
                 author: rem.author || 'Julián', 
                 recipient: rem.recipient || (rem.author === 'Yanet' ? 'Julián' : 'Yanet') 
               });
-              ids.add(rem.id);
             }
           });
+          const merged = Array.from(map.values());
           localStorage.setItem('romapp_letters', JSON.stringify(merged));
           return merged;
         });
       }
     });
   }, []);
+
+  const handleResetDefaultLetters = () => {
+    if (confirm('¿Deseas restaurar las cartas al contenido original sin texto de casamiento previo?')) {
+      saveLettersToLocal(SURPRISE_LETTERS);
+    }
+  };
 
   const saveLettersToLocal = (newLetters) => {
     setLetters(newLetters);
@@ -249,7 +264,15 @@ export default function LoveLetters() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          <button
+            onClick={handleResetDefaultLetters}
+            className="px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-stone-400 hover:text-stone-200 text-xs border border-white/10 transition-all cursor-pointer flex items-center gap-1.5"
+            title="Restaurar cartas predeterminadas limpias"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-stone-400" />
+            <span className="hidden sm:inline">Restaurar</span>
+          </button>
           <button
             onClick={handleSurpriseLetter}
             className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-amber-950/40 hover:bg-amber-950/70 text-amber-300 font-semibold text-xs border border-amber-600/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
@@ -683,24 +706,23 @@ export default function LoveLetters() {
                       <span>→</span>
                     </span>
 
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
                       <button
                         onClick={(e) => handleStartEditLetter(letter, e)}
-                        className="p-1.5 text-stone-400 hover:text-amber-300 rounded-lg hover:bg-rose-950/50 transition-colors"
-                        title="Editar carta"
+                        className="px-2.5 py-1 text-xs text-amber-300 hover:text-stone-950 bg-amber-400/10 hover:bg-amber-400 rounded-lg border border-amber-400/30 transition-all flex items-center gap-1 cursor-pointer font-medium"
+                        title="Editar esta carta"
                       >
-                        <Edit3 className="w-4 h-4" />
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Editar</span>
                       </button>
 
-                      {letter.id.toString().startsWith('custom-') && (
-                        <button
-                          onClick={(e) => handleDeleteLetter(letter.id, e)}
-                          className="p-1.5 text-stone-400 hover:text-rose-400 rounded-lg hover:bg-rose-950/50 transition-colors"
-                          title="Eliminar carta"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
+                      <button
+                        onClick={(e) => handleDeleteLetter(letter.id, e)}
+                        className="p-1.5 text-stone-500 hover:text-rose-400 rounded-lg hover:bg-rose-950/50 transition-colors cursor-pointer"
+                        title="Eliminar carta"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 </div>

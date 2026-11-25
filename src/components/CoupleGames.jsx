@@ -45,7 +45,7 @@ const MOST_LIKELY_QUESTIONS = [
   {
     id: 4,
     category: 'Antojos & Tentaciones',
-    question: '¿Quién es más probable que se coma toda la caja de chocolates de Rapa Nui o Mamuschka en una sola noche?',
+    question: '¿Quién es más probable que se coma todos los chocolates o dulces en una sola noche?',
     detail: '"Dejo una para mañana" y 10 minutos después no queda ni el envoltorio.'
   },
   {
@@ -182,15 +182,15 @@ const WHEEL_CHALLENGES = [
 const TRIVIA_QUESTIONS = [
   {
     id: 1,
-    question: '¿En qué lugar inolvidable Julián se arrodilló con el anillo para pedirle casamiento a Yanet?',
+    question: '¿Cuál fue la respuesta de Yanet cuando Julián se puso de rodillas con el anillo de compromiso?',
     options: [
-      'En la costanera de Puerto Madero al atardecer',
-      'En el Rosedal de Palermo, rodeados de rosas y flores',
-      'En un café de especialidad tomando algo rico',
-      'En la cima del cerro Campanario en Bariloche'
+      '¡Un "Sí, acepto!" gigante y lleno de emoción',
+      'Dijo que lo iba a pensar una semana',
+      'Salió corriendo a avisarle a los vecinos',
+      'Pidió consultar con su horóscopo'
     ],
-    correctIndex: 1,
-    explanation: '¡Exacto! El Rosedal de Palermo fue el escenario de película donde Julián se puso de rodillas con el estuche del anillo para sellar la promesa para siempre.'
+    correctIndex: 0,
+    explanation: '¡Exacto! Un "Sí" rotundo y lleno de felicidad que selló nuestra promesa para toda la vida.'
   },
   {
     id: 2,
@@ -242,15 +242,15 @@ const TRIVIA_QUESTIONS = [
   },
   {
     id: 6,
-    question: 'En Bariloche, ¿cuál es la parada gastronómica más peligrosa y dulce de todas?',
+    question: '¿Qué es lo que más ilusión nos hace de nuestro futuro viaje a Bariloche?',
     options: [
-      'Comer solo ensalada en la cabaña',
-      'Mamuschka y Rapa Nui para atiborrarse de Franui y chocolates',
-      'Tomar té sin azúcar',
-      'Comer una manzana de postre'
+      'Disfrutar 10 días juntos en el sur, relajarnos y contemplar los paisajes',
+      'Hacer trámites en el banco',
+      'Quedarnos encerrados contestando correos de trabajo',
+      'Comer solo ensalada en la cabaña'
     ],
-    correctIndex: 1,
-    explanation: '¡Mamuschka y los Franui de Rapa Nui! La perdición absoluta donde el presupuesto de chocolates no tiene límites.'
+    correctIndex: 0,
+    explanation: '¡Exacto! Compartir 10 días soñados en la Patagonia, desconectar de la rutina y disfrutar de estar juntos.'
   },
   {
     id: 7,
@@ -266,7 +266,7 @@ const TRIVIA_QUESTIONS = [
   },
   {
     id: 8,
-    question: '¿Cuál es el secreto inquebrantable de este amor que culmina en matrimonio?',
+    question: '¿Cuál es el secreto inquebrantable en este camino hacia nuestro casamiento?',
     options: [
       'La complicidad, las risas de a dos, los abrazos sinceros y elegirnos cada día',
       'Tener siempre la razón en las discusiones',
@@ -274,7 +274,7 @@ const TRIVIA_QUESTIONS = [
       'Comer pizza congelada todos los días'
     ],
     correctIndex: 0,
-    explanation: '¡Eso es todo! Complicidad única, miradas que lo dicen todo, cantar juntos y saber que en el otro encontramos nuestro hogar.'
+    explanation: '¡Eso es todo! Complicidad única, miradas sinceras, reírnos de todo y saber que en el otro encontramos nuestro hogar.'
   }
 ];
 
