@@ -74,9 +74,9 @@ export default function Navbar({
             {/* Logo & Dynamic Nickname */}
             <div 
               onClick={() => handleSelectTab('home')}
-              className="flex items-center gap-3 cursor-pointer group"
+              className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group min-w-0"
             >
-              <div className="relative w-10 h-10 rounded-full overflow-hidden p-0.5 border border-amber-300/40 shadow-sm group-hover:scale-105 transition-transform shrink-0">
+              <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden p-0.5 border border-amber-300/40 shadow-sm group-hover:scale-105 transition-transform shrink-0">
                 <img 
                   src="/photos/beso-cafeteria.jpg" 
                   alt="Julián & Yanet" 
@@ -84,20 +84,20 @@ export default function Navbar({
                 />
               </div>
 
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-serif-romantic text-lg sm:text-xl font-bold tracking-tight text-stone-100">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="font-serif-romantic text-base sm:text-xl font-bold tracking-tight text-stone-100 truncate">
                     Julián <span className="text-amber-300/90 font-serif font-light">&</span> Yanet
                   </span>
-                  <span className="hidden sm:inline-block text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-full bg-white/[0.05] text-amber-200/90 font-medium border border-white/10">
+                  <span className="hidden lg:inline-block text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-full bg-white/[0.05] text-amber-200/90 font-medium border border-white/10">
                     Rumbo a Nuestra Boda
                   </span>
                 </div>
                 
                 {/* Rotating Nickname Pill */}
-                <div className="flex items-center gap-1.5 text-xs text-stone-400">
-                  <span className="text-[11px]">{isJulian ? 'Para mi muñeca,' : 'Para mi rey,'}</span>
-                  <span className="inline-block font-medium text-amber-200/90 transition-all duration-500 font-serif-romantic italic">
+                <div className="flex items-center gap-1 text-[11px] text-stone-400 truncate">
+                  <span className="hidden sm:inline text-[10px]">{isJulian ? 'Para mi muñeca,' : 'Para mi rey,'}</span>
+                  <span className="inline-block font-medium text-amber-200/90 font-serif-romantic italic truncate max-w-[110px] sm:max-w-none">
                     "{nicknames[nickIndex]}"
                   </span>
                 </div>
@@ -148,11 +148,11 @@ export default function Navbar({
             </nav>
 
             {/* Right Actions: Mimo Button & Profile Switcher & Spotify & Mobile Menu */}
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               {/* Mimo Button */}
               <button
                 onClick={() => setIsPingModalOpen(true)}
-                className={`relative flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all cursor-pointer border ${
+                className={`relative flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all cursor-pointer border ${
                   unreadCount > 0
                     ? 'bg-rose-950/80 text-rose-200 border-rose-500/70 shadow-sm shadow-rose-950 animate-pulse'
                     : 'bg-white/[0.03] text-stone-300 border-white/10 hover:border-white/20 hover:text-white'
@@ -171,7 +171,7 @@ export default function Navbar({
               {/* Profile Pill with Real Photo */}
               <button
                 onClick={() => setShowProfileModal(true)}
-                className={`flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full text-xs font-semibold tracking-wide transition-all shadow-xs cursor-pointer border ${
+                className={`flex items-center gap-1.5 pl-1 pr-2 sm:pl-1.5 sm:pr-3 py-1 rounded-full text-xs font-semibold tracking-wide transition-all shadow-xs cursor-pointer border ${
                   isJulian
                     ? 'bg-amber-950/30 text-amber-200 border-amber-500/40 hover:border-amber-400/70'
                     : 'bg-rose-950/30 text-rose-200 border-rose-500/40 hover:border-rose-400/70'
@@ -181,14 +181,14 @@ export default function Navbar({
                 <div className="w-6 h-6 rounded-full overflow-hidden border border-white/30 shrink-0">
                   <img src={profile.photo} alt={profile.name} className="w-full h-full object-cover" />
                 </div>
-                <span>{profile.name}</span>
-                <RefreshCw className="w-3 h-3 text-stone-400 hover:rotate-180 transition-transform opacity-70" />
+                <span className="hidden sm:inline">{profile.name}</span>
+                <RefreshCw className="w-3 h-3 text-stone-400 hover:rotate-180 transition-transform opacity-70 hidden sm:inline" />
               </button>
 
               {/* Spotify Player Toggle */}
               <button
                 onClick={() => setIsSpotifyOpen(!isSpotifyOpen)}
-                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all cursor-pointer border ${
+                className={`flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all cursor-pointer border ${
                   isSpotifyOpen 
                     ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/50 shadow-xs' 
                     : 'bg-white/[0.03] text-stone-300 border-white/10 hover:border-white/20'
@@ -196,14 +196,14 @@ export default function Navbar({
                 title="Música de Nuestra Historia"
               >
                 <Music className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="hidden sm:inline">Música</span>
+                <span className="hidden md:inline">Música</span>
                 {isSpotifyOpen && <Volume2 className="w-3.5 h-3.5 animate-pulse" />}
               </button>
 
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-xl text-stone-300 hover:text-stone-100 md:hidden hover:bg-white/[0.06] border border-transparent hover:border-white/10 transition-colors"
+                className="p-1.5 sm:p-2 rounded-xl text-stone-300 hover:text-stone-100 md:hidden hover:bg-white/[0.06] border border-transparent hover:border-white/10 transition-colors"
                 aria-label="Abrir menú"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -278,31 +278,33 @@ export default function Navbar({
 
       {/* Mobile Bottom Quick Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0c0812]/95 backdrop-blur-xl border-t border-white/10 md:hidden flex justify-around items-center py-2 px-1 shadow-[0_-8px_25px_rgba(0,0,0,0.6)]">
-        {navItems.slice(0, 5).map((item) => {
+        {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentTab === item.id;
+          const shortLabels = {
+            home: 'Inicio',
+            games: 'Juegos',
+            letters: 'Cartas',
+            honeymoon: 'Viaje',
+            coupons: 'Cupones',
+            'wedding-eve': 'Víspera',
+            intimate: 'Regalo'
+          };
+          const label = shortLabels[item.id] || item.label;
+
           return (
             <button
               key={item.id}
               onClick={() => handleSelectTab(item.id)}
-              className={`flex flex-col items-center justify-center p-1 rounded-lg flex-1 transition-colors ${
+              className={`flex flex-col items-center justify-center p-1 rounded-lg flex-1 min-w-0 transition-colors ${
                 isActive ? 'text-amber-300 font-bold' : 'text-stone-400 hover:text-stone-200'
               }`}
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-[10px] mt-0.5">{item.label}</span>
+              <Icon className="w-4 h-4 shrink-0" />
+              <span className="text-[9px] mt-0.5 truncate w-full text-center">{label}</span>
             </button>
           );
         })}
-        <button
-          onClick={() => handleSelectTab('intimate')}
-          className={`flex flex-col items-center justify-center p-1 rounded-lg flex-1 transition-colors ${
-            currentTab === 'intimate' ? 'text-amber-300 font-bold' : 'text-stone-400 hover:text-stone-200'
-          }`}
-        >
-          <Flame className="w-5 h-5 text-amber-400" />
-          <span className="text-[10px] mt-0.5">Regalo</span>
-        </button>
       </div>
 
       {/* Profile Selector Modal */}

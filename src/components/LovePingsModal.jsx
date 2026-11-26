@@ -67,9 +67,9 @@ export default function LovePingsModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
       <div 
-        className="relative w-full max-w-lg rounded-3xl bg-[#110a16] border border-white/10 shadow-2xl overflow-hidden text-stone-100 flex flex-col max-h-[90vh]"
+        className="relative w-full max-w-lg rounded-3xl bg-[#110a16] border border-white/10 shadow-2xl overflow-hidden text-stone-100 flex flex-col max-h-[92vh] sm:max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Subtle ambient glow */}
@@ -77,23 +77,23 @@ export default function LovePingsModal({ isOpen, onClose }) {
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Header */}
-        <div className="relative z-10 px-6 py-5 border-b border-white/10 flex items-center justify-between bg-black/20">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl overflow-hidden border border-white/20 shadow-md shrink-0">
+        <div className="relative z-10 px-4 sm:px-6 py-3.5 sm:py-5 border-b border-white/10 flex items-center justify-between bg-black/20">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl overflow-hidden border border-white/20 shadow-md shrink-0">
               <img 
                 src={isJulian ? '/photos/parque-rosas.jpg' : '/photos/cena-romantica.jpg'} 
                 alt={partnerName} 
                 className="w-full h-full object-cover"
               />
             </div>
-            <div>
-              <h3 className="font-serif-romantic text-xl font-bold text-stone-100 flex items-center gap-2">
-                Mimos de Amor en Vivo
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/[0.05] text-amber-200/90 font-sans font-medium border border-white/10">
+            <div className="min-w-0">
+              <h3 className="font-serif-romantic text-base sm:text-xl font-bold text-stone-100 flex items-center gap-1.5 sm:gap-2 truncate">
+                <span>Mimos de Amor en Vivo</span>
+                <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-white/[0.05] text-amber-200/90 font-sans font-medium border border-white/10 shrink-0">
                   Para {partnerName}
                 </span>
               </h3>
-              <p className="text-xs text-stone-400">
+              <p className="text-[11px] sm:text-xs text-stone-400 truncate">
                 Enviá un mimo al instante a la pantalla de tu amor
               </p>
             </div>
@@ -101,7 +101,7 @@ export default function LovePingsModal({ isOpen, onClose }) {
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-stone-400 hover:text-white hover:bg-rose-950/50 transition-colors"
+            className="p-1.5 sm:p-2 rounded-xl text-stone-400 hover:text-white hover:bg-rose-950/50 transition-colors shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
@@ -111,7 +111,7 @@ export default function LovePingsModal({ isOpen, onClose }) {
         <div className="relative z-10 flex border-b border-rose-950/60 bg-black/10">
           <button
             onClick={() => setActiveTab('send')}
-            className={`flex-1 py-3 text-xs font-semibold flex items-center justify-center gap-2 border-b-2 transition-colors ${
+            className={`flex-1 py-2.5 sm:py-3 text-xs font-semibold flex items-center justify-center gap-2 border-b-2 transition-colors ${
               activeTab === 'send'
                 ? 'border-rose-500 text-rose-300 bg-rose-950/20'
                 : 'border-transparent text-stone-400 hover:text-stone-200'
@@ -122,7 +122,7 @@ export default function LovePingsModal({ isOpen, onClose }) {
           </button>
           <button
             onClick={() => setActiveTab('history')}
-            className={`flex-1 py-3 text-xs font-semibold flex items-center justify-center gap-2 border-b-2 transition-colors ${
+            className={`flex-1 py-2.5 sm:py-3 text-xs font-semibold flex items-center justify-center gap-2 border-b-2 transition-colors ${
               activeTab === 'history'
                 ? 'border-rose-500 text-rose-300 bg-rose-950/20'
                 : 'border-transparent text-stone-400 hover:text-stone-200'
@@ -134,7 +134,7 @@ export default function LovePingsModal({ isOpen, onClose }) {
         </div>
 
         {/* Content Body */}
-        <div className="relative z-10 p-6 overflow-y-auto flex-1 space-y-6">
+        <div className="relative z-10 p-4 sm:p-6 overflow-y-auto flex-1 space-y-5 sm:space-y-6">
           {sentSuccess ? (
             <div className="py-12 text-center space-y-4 animate-scale-up">
               <div className="w-16 h-16 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto border border-rose-500/40 animate-bounce">

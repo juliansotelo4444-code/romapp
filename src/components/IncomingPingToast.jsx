@@ -13,7 +13,7 @@ export default function IncomingPingToast() {
   };
 
   return (
-    <div className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-50 max-w-sm w-full animate-slide-up">
+    <div className="fixed bottom-20 md:bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 max-w-sm sm:w-full animate-slide-up">
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#2c0d24]/95 via-[#1b0818]/95 to-[#10040e]/95 backdrop-blur-xl border border-rose-500/50 p-4 sm:p-5 shadow-[0_10px_35px_rgba(244,63,94,0.25)] text-stone-100">
         
         {/* Glow corner */}

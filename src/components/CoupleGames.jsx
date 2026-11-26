@@ -924,7 +924,7 @@ export default function CoupleGames() {
               </div>
 
               {/* Wheel Container */}
-              <div className="relative w-72 h-72 sm:w-80 sm:h-80 my-4 flex items-center justify-center">
+              <div className="relative w-64 h-64 sm:w-80 sm:h-80 max-w-[85vw] max-h-[85vw] my-4 flex items-center justify-center">
                 
                 {/* Pointer at the top */}
                 <div className="absolute -top-3 z-30 drop-shadow-lg flex flex-col items-center">

@@ -187,7 +187,7 @@ export default function HoneymoonChecklist() {
               Nuestra Luna de Miel en Bariloche
             </h2>
             <p className="text-xs sm:text-sm text-stone-300 leading-relaxed font-light">
-              Cabaña con chimenea, chocolates artesanales de Mamuschka & Rapa Nui, navegación en el lago Nahuel Huapi y miradores de cuento de hadas.
+              Cabaña con chimenea, chocolates artesanales patagónicos, navegación en el lago Nahuel Huapi y miradores de cuento de hadas.
             </p>
           </div>
 
@@ -219,9 +219,9 @@ export default function HoneymoonChecklist() {
           <div className="w-9 h-9 rounded-xl bg-amber-950/60 border border-amber-800/40 text-amber-400 flex items-center justify-center shrink-0">
             <Coffee className="w-5 h-5" />
           </div>
-          <div>
-            <h4 className="text-xs font-bold text-stone-200">Mamuschka & Rapa Nui</h4>
-            <p className="text-[10px] text-stone-400">Chocolates & Franui</p>
+          <div className="min-w-0">
+            <h4 className="text-xs font-bold text-stone-200 truncate">Chocolates del Sur</h4>
+            <p className="text-[10px] text-stone-400 truncate">Bombones & ramas</p>
           </div>
         </div>
 

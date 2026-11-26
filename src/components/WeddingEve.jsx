@@ -316,46 +316,46 @@ export default function WeddingEve({ onOpenSpotify }) {
         </div>
 
         {/* Quick Nav Tabs */}
-        <div className="relative z-10 flex flex-wrap items-center gap-2 mt-6 pt-4 border-t border-purple-900/60">
+        <div className="relative z-10 grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 mt-6 pt-4 border-t border-purple-900/60">
           <button
             onClick={() => setActiveTab('missions')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer text-center ${
               activeTab === 'missions'
                 ? 'bg-amber-400 text-stone-950 shadow-md'
                 : 'bg-purple-900/40 text-purple-200 hover:bg-purple-900/80'
             }`}
           >
-            📸 Misiones de Fotos Prohibidas
+            📸 Misiones de Fotos
           </button>
           <button
             onClick={() => setActiveTab('schedule')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer text-center ${
               activeTab === 'schedule'
                 ? 'bg-amber-400 text-stone-950 shadow-md'
                 : 'bg-purple-900/40 text-purple-200 hover:bg-purple-900/80'
             }`}
           >
-            🌙 Guion Noche de Bodas
+            🌙 Guion Nocturno
           </button>
           <button
             onClick={() => setActiveTab('roulette')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer text-center ${
               activeTab === 'roulette'
                 ? 'bg-amber-400 text-stone-950 shadow-md'
                 : 'bg-purple-900/40 text-purple-200 hover:bg-purple-900/80'
             }`}
           >
-            🎲 Ruleta del Insomnio Nupcial
+            🎲 Ruleta del Insomnio
           </button>
           <button
             onClick={() => setActiveTab('midnight')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer text-center ${
               activeTab === 'midnight'
                 ? 'bg-amber-400 text-stone-950 shadow-md'
                 : 'bg-purple-900/40 text-purple-200 hover:bg-purple-900/80'
             }`}
           >
-            👑 Conteo & Cupón Dorado
+            👑 Cupón Dorado
           </button>
         </div>
       </div>
@@ -365,10 +365,10 @@ export default function WeddingEve({ onOpenSpotify }) {
         <div className="space-y-6">
           
           {/* Target Audience Switch */}
-          <div className="flex items-center justify-center p-1 bg-[#180a1c] rounded-2xl border border-rose-950/70 max-w-md mx-auto shadow-xs">
+          <div className="flex flex-col sm:flex-row items-center justify-center p-1 bg-[#180a1c] rounded-2xl border border-rose-950/70 max-w-md mx-auto shadow-xs gap-1 sm:gap-0">
             <button
               onClick={() => setTargetAudience('yanet')}
-              className={`flex-1 py-2 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`w-full sm:flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer text-center ${
                 targetAudience === 'yanet'
                   ? 'bg-rose-700 text-rose-100 shadow-xs'
                   : 'text-stone-400 hover:text-stone-200'
@@ -378,7 +378,7 @@ export default function WeddingEve({ onOpenSpotify }) {
             </button>
             <button
               onClick={() => setTargetAudience('julian')}
-              className={`flex-1 py-2 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`w-full sm:flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer text-center ${
                 targetAudience === 'julian'
                   ? 'bg-rose-700 text-rose-100 shadow-xs'
                   : 'text-stone-400 hover:text-stone-200'
